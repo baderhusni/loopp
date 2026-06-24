@@ -1,0 +1,456 @@
+{
+  "reference_date": "2026-06-24",
+  "currency": "USD",
+  "customers": [
+    {
+      "id": "CUST-1001",
+      "name": "Alice Nguyen",
+      "email": "alice@example.com",
+      "phone": "+1-202-555-0101",
+      "tier": "gold",
+      "member_since": "2024-07-24",
+      "orders": [
+        {
+          "id": "ORD-5001",
+          "placed_at": "2026-06-08",
+          "status": "delivered",
+          "delivered_at": "2026-06-12",
+          "items": [
+            {
+              "id": "ITEM-1",
+              "name": "Wireless Headphones",
+              "sku": "WH-220",
+              "category": "electronics",
+              "unit_price": 129.0,
+              "quantity": 1,
+              "final_sale": false,
+              "refunded": false
+            },
+            {
+              "id": "ITEM-2",
+              "name": "Clearance Phone Case",
+              "sku": "PC-CLR-9",
+              "category": "accessories",
+              "unit_price": 19.99,
+              "quantity": 1,
+              "final_sale": true,
+              "refunded": false
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "CUST-1002",
+      "name": "Bob Martinez",
+      "email": "bob@example.com",
+      "phone": "+1-202-555-0102",
+      "tier": "platinum",
+      "member_since": "2023-03-12",
+      "orders": [
+        {
+          "id": "ORD-5002",
+          "placed_at": "2026-06-04",
+          "status": "delivered",
+          "delivered_at": "2026-06-10",
+          "items": [
+            {
+              "id": "ITEM-1",
+              "name": "UltraBook Pro 14",
+              "sku": "LAP-1299",
+              "category": "electronics",
+              "unit_price": 1299.0,
+              "quantity": 1,
+              "final_sale": false,
+              "refunded": false
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "CUST-1003",
+      "name": "Carol Smith",
+      "email": "carol@example.com",
+      "phone": "+1-202-555-0103",
+      "tier": "standard",
+      "member_since": "2024-01-06",
+      "orders": [
+        {
+          "id": "ORD-5003",
+          "placed_at": "2026-04-11",
+          "status": "delivered",
+          "delivered_at": "2026-04-15",
+          "items": [
+            {
+              "id": "ITEM-1",
+              "name": "Cotton Throw Blanket",
+              "sku": "HOME-88",
+              "category": "home",
+              "unit_price": 79.5,
+              "quantity": 1,
+              "final_sale": false,
+              "refunded": false
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "CUST-1004",
+      "name": "David Lee",
+      "email": "david@example.com",
+      "phone": "+1-202-555-0104",
+      "tier": "standard",
+      "member_since": "2025-02-09",
+      "orders": [
+        {
+          "id": "ORD-5004",
+          "placed_at": "2026-05-11",
+          "status": "delivered",
+          "delivered_at": "2026-05-15",
+          "items": [
+            {
+              "id": "ITEM-1",
+              "name": "Desk Lamp",
+              "sku": "LAMP-12",
+              "category": "home",
+              "unit_price": 59.0,
+              "quantity": 1,
+              "final_sale": false,
+              "refunded": false
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "CUST-1005",
+      "name": "Emma Wilson",
+      "email": "emma@example.com",
+      "phone": "+1-202-555-0105",
+      "tier": "gold",
+      "member_since": "2024-04-15",
+      "orders": [
+        {
+          "id": "ORD-5005",
+          "placed_at": "2026-06-06",
+          "status": "delivered",
+          "delivered_at": "2026-06-11",
+          "items": [
+            {
+              "id": "ITEM-1",
+              "name": "Bluetooth Speaker",
+              "sku": "SPK-50",
+              "category": "electronics",
+              "unit_price": 49.99,
+              "quantity": 1,
+              "final_sale": false,
+              "refunded": true
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "CUST-1006",
+      "name": "Frank Brown",
+      "email": "frank@example.com",
+      "phone": "+1-202-555-0106",
+      "tier": "standard",
+      "member_since": "2025-08-28",
+      "orders": [
+        {
+          "id": "ORD-5006",
+          "placed_at": "2026-06-21",
+          "status": "shipped",
+          "delivered_at": null,
+          "items": [
+            {
+              "id": "ITEM-1",
+              "name": "Running Shoes",
+              "sku": "SHOE-200",
+              "category": "apparel",
+              "unit_price": 119.99,
+              "quantity": 1,
+              "final_sale": false,
+              "refunded": false
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "CUST-1007",
+      "name": "Grace Park",
+      "email": "grace@example.com",
+      "phone": "+1-202-555-0107",
+      "tier": "standard",
+      "member_since": "2025-11-16",
+      "orders": [
+        {
+          "id": "ORD-5007",
+          "placed_at": "2026-06-14",
+          "status": "delivered",
+          "delivered_at": "2026-06-17",
+          "items": [
+            {
+              "id": "ITEM-1",
+              "name": "$100 Digital Gift Card",
+              "sku": "GC-100",
+              "category": "gift_card",
+              "unit_price": 100.0,
+              "quantity": 1,
+              "final_sale": true,
+              "refunded": false
+            },
+            {
+              "id": "ITEM-2",
+              "name": "Phone Charger",
+              "sku": "CHG-9",
+              "category": "electronics",
+              "unit_price": 24.99,
+              "quantity": 1,
+              "final_sale": false,
+              "refunded": false
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "CUST-1008",
+      "name": "Hannah Kim",
+      "email": "hannah@example.com",
+      "phone": "+1-202-555-0108",
+      "tier": "standard",
+      "member_since": "2025-05-20",
+      "orders": [
+        {
+          "id": "ORD-5008",
+          "placed_at": "2026-06-10",
+          "status": "delivered",
+          "delivered_at": "2026-06-15",
+          "items": [
+            {
+              "id": "ITEM-1",
+              "name": "Yoga Mat",
+              "sku": "YOGA-7",
+              "category": "fitness",
+              "unit_price": 34.99,
+              "quantity": 1,
+              "final_sale": false,
+              "refunded": false
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "CUST-1009",
+      "name": "Ian Foster",
+      "email": "ian@example.com",
+      "phone": "+1-202-555-0109",
+      "tier": "gold",
+      "member_since": "2025-05-20",
+      "orders": [
+        {
+          "id": "ORD-5009",
+          "placed_at": "2026-06-02",
+          "status": "delivered",
+          "delivered_at": "2026-06-06",
+          "items": [
+            {
+              "id": "ITEM-1",
+              "name": "Coffee Grinder",
+              "sku": "GRND-3",
+              "category": "kitchen",
+              "unit_price": 89.0,
+              "quantity": 1,
+              "final_sale": false,
+              "refunded": false
+            },
+            {
+              "id": "ITEM-2",
+              "name": "Travel Mug",
+              "sku": "MUG-2",
+              "category": "kitchen",
+              "unit_price": 18.5,
+              "quantity": 2,
+              "final_sale": false,
+              "refunded": false
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "CUST-1010",
+      "name": "Julia Reyes",
+      "email": "julia@example.com",
+      "phone": "+1-202-555-0110",
+      "tier": "platinum",
+      "member_since": "2025-05-20",
+      "orders": [
+        {
+          "id": "ORD-5010",
+          "placed_at": "2026-06-15",
+          "status": "delivered",
+          "delivered_at": "2026-06-19",
+          "items": [
+            {
+              "id": "ITEM-1",
+              "name": "Smart Watch",
+              "sku": "WATCH-9",
+              "category": "electronics",
+              "unit_price": 249.0,
+              "quantity": 1,
+              "final_sale": false,
+              "refunded": false
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "CUST-1011",
+      "name": "Kevin O'Neil",
+      "email": "kevin@example.com",
+      "phone": "+1-202-555-0111",
+      "tier": "standard",
+      "member_since": "2025-05-20",
+      "orders": [
+        {
+          "id": "ORD-5011",
+          "placed_at": "2026-05-25",
+          "status": "delivered",
+          "delivered_at": "2026-05-30",
+          "items": [
+            {
+              "id": "ITEM-1",
+              "name": "Backpack",
+              "sku": "BAG-4",
+              "category": "apparel",
+              "unit_price": 64.0,
+              "quantity": 1,
+              "final_sale": false,
+              "refunded": false
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "CUST-1012",
+      "name": "Lena Petrov",
+      "email": "lena@example.com",
+      "phone": "+1-202-555-0112",
+      "tier": "gold",
+      "member_since": "2025-05-20",
+      "orders": [
+        {
+          "id": "ORD-5012",
+          "placed_at": "2026-06-12",
+          "status": "delivered",
+          "delivered_at": "2026-06-16",
+          "items": [
+            {
+              "id": "ITEM-1",
+              "name": "Cookware Set",
+              "sku": "COOK-1",
+              "category": "kitchen",
+              "unit_price": 199.0,
+              "quantity": 1,
+              "final_sale": false,
+              "refunded": false
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "CUST-1013",
+      "name": "Marcus Hall",
+      "email": "marcus@example.com",
+      "phone": "+1-202-555-0113",
+      "tier": "standard",
+      "member_since": "2025-05-20",
+      "orders": [
+        {
+          "id": "ORD-5013",
+          "placed_at": "2026-06-18",
+          "status": "delivered",
+          "delivered_at": "2026-06-22",
+          "items": [
+            {
+              "id": "ITEM-1",
+              "name": "Wireless Mouse",
+              "sku": "MOU-6",
+              "category": "electronics",
+              "unit_price": 29.99,
+              "quantity": 1,
+              "final_sale": false,
+              "refunded": false
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "CUST-1014",
+      "name": "Nina Castro",
+      "email": "nina@example.com",
+      "phone": "+1-202-555-0114",
+      "tier": "standard",
+      "member_since": "2025-05-20",
+      "orders": [
+        {
+          "id": "ORD-5014",
+          "placed_at": "2026-05-28",
+          "status": "delivered",
+          "delivered_at": "2026-06-03",
+          "items": [
+            {
+              "id": "ITEM-1",
+              "name": "Sunglasses",
+              "sku": "SUN-3",
+              "category": "accessories",
+              "unit_price": 89.0,
+              "quantity": 1,
+              "final_sale": false,
+              "refunded": false
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "CUST-1015",
+      "name": "Omar Haddad",
+      "email": "omar@example.com",
+      "phone": "+1-202-555-0115",
+      "tier": "platinum",
+      "member_since": "2025-05-20",
+      "orders": [
+        {
+          "id": "ORD-5015",
+          "placed_at": "2026-06-13",
+          "status": "delivered",
+          "delivered_at": "2026-06-18",
+          "items": [
+            {
+              "id": "ITEM-1",
+              "name": "Tablet 10\"",
+              "sku": "TAB-10",
+              "category": "electronics",
+              "unit_price": 399.0,
+              "quantity": 1,
+              "final_sale": false,
+              "refunded": false
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
