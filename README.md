@@ -11,6 +11,11 @@ dashboard shows the agent's full internal reasoning trace for every run.
 > app also ships a deterministic **mock engine** so it runs out-of-the-box even
 > without the SDK/subscription.
 
+> 📄 **Project report:** `docs/report.html` — architecture, agent workflow, the full
+> UAT results (22/22), and every screen in one page. Open it in a browser. Regenerate
+> with `python docs/build_report.py docs/report.html 0` (UAT data in
+> `docs/uat_results.json`, produced by `backend/uat.py` against a running server).
+
 ---
 
 ## What it does
