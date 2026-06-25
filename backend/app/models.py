@@ -8,7 +8,7 @@ from pydantic import BaseModel, Field
 
 
 class ChatRequest(BaseModel):
-    message: str = Field(..., min_length=1, description="The customer's message")
+    message: str = Field(..., min_length=1, max_length=4000, description="The customer's message")
     conversation_id: Optional[str] = Field(None, description="Continue an existing conversation")
     engine: Optional[str] = Field(None, description="Override engine: 'claude', 'mock', or 'auto'")
 

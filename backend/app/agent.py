@@ -245,15 +245,30 @@ _DEFECTIVE_RE = re.compile(r"\b(defect|broken|damaged|cracked|doesn'?t work|not 
 
 
 def _scan(transcript: list[dict], message: str) -> dict:
-    text = " ".join([t["content"] for t in transcript if t["role"] == "customer"] + [message])
-    email = (_EMAIL_RE.findall(text) or [None])[-1]
-    order_id = (_ORDER_RE.findall(text) or [None])[-1]
-    item_id = (_ITEM_RE.findall(text) or [None])[-1]
-    if order_id:
-        order_id = order_id.upper()
-    if item_id:
-        item_id = item_id.upper()
-    defective = bool(_DEFECTIVE_RE.search(message) or _DEFECTIVE_RE.search(text))
+    """Reconstruct refund slots by replaying customer turns in order.
+
+    Switching customer (a new email) resets the order and item, and switching
+    order resets the item, so state from a prior customer/item never leaks
+    forward within one conversation. ``defective`` is taken ONLY from the current
+    message — a defect claimed about one item can never approve a different item
+    or a different customer's item (which would otherwise wrongly extend the
+    return window). Erring toward not-defective is the safe direction.
+    """
+    turns = [t["content"] for t in transcript if t["role"] == "customer"] + [message]
+    email = order_id = item_id = None
+    for turn in turns:
+        e = (_EMAIL_RE.findall(turn) or [None])[-1]
+        o = (_ORDER_RE.findall(turn) or [None])[-1]
+        it = (_ITEM_RE.findall(turn) or [None])[-1]
+        if e and e != email:
+            email, order_id, item_id = e, None, None  # new customer → drop downstream slots
+        if o:
+            o = o.upper()
+            if o != order_id:
+                order_id, item_id = o, None  # new order → drop item
+        if it:
+            item_id = it.upper()
+    defective = bool(_DEFECTIVE_RE.search(message))
     return {"email": email, "order_id": order_id, "item_id": item_id, "defective": defective}
 
 

@@ -140,6 +140,28 @@ def test_mock_agent_escalates_high_value():
     assert r["decision"] == "ESCALATED"
 
 
+def test_mock_defective_does_not_leak_across_turns():
+    """Regression: a defect claim about one item must not extend the window for a
+    different customer's out-of-window item later in the same conversation."""
+    r1 = _turn("hi, my headphones ITEM-1 in ORD-5001 for alice@example.com arrived broken")
+    conv = r1["conversation_id"]
+    assert r1["decision"] == "APPROVED"  # alice ITEM-1 is in-window regardless
+    r2 = _turn("now also david@example.com, refund ITEM-1 from ORD-5004", conv)
+    # David's item is 40 days out and NOT defective in this turn -> must be DENIED.
+    assert r2["decision"] == "DENIED", r2
+    assert all(r["item_id"] != "ITEM-1" or r["customer_id"] != "CUST-1004" for r in store.refunds())
+
+
+def test_mock_customer_switch_resets_downstream_slots():
+    """Regression: switching customer mid-conversation must drop the prior
+    customer's order/item rather than latching them."""
+    r1 = _turn("alice@example.com, this is about order ORD-5001")
+    conv = r1["conversation_id"]
+    assert r1["decision"] is None  # needs an item -> info turn
+    r2 = _turn("actually I'm bob@example.com", conv)
+    assert r2["decision"] is None  # bob's order not stated -> ask, don't reuse alice's
+
+
 def test_mock_agent_injection_does_not_bypass():
     """Pleading / injection cannot force an unauthorized refund."""
     r = _turn(

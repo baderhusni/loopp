@@ -129,15 +129,21 @@ def issue_refund(email: str, order_id: str, item_id: str, defective: bool = Fals
             "decision": decision.to_dict(),
         }
     refund = store.record_refund(customer, order, item, decision.amount)
+    if refund is None:
+        # Lost the in-lock race: the item was refunded by another request first.
+        return {
+            "error": "REFUND BLOCKED [R5_already_refunded]: this item was just refunded by "
+                     "another request. Deny the duplicate.",
+            "decision": decision.to_dict(),
+        }
     return {"refunded": True, "refund": refund, "decision": decision.to_dict()}
 
 
 def escalate_to_human(email: str, order_id: str, item_id: str | None = None, reason: str = "") -> dict:
+    # item_id is optional; but if one is supplied it must resolve (surface a bad id).
     (customer, order, item), err = _resolve(email, order_id, item_id)
-    # item is optional for escalation; ignore an item-not-found error if no item_id given.
-    if err and not (item_id is None and err["error"].startswith("Item")):
-        if customer is None or order is None:
-            return err
+    if err:
+        return err
     ticket = store.open_escalation(customer, order, item, reason or "Customer refund request requires human review.")
     return {"escalated": True, "ticket": ticket}
 

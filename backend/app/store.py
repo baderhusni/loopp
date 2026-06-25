@@ -59,7 +59,10 @@ def reference_date() -> str:
 
 def all_customers() -> list[dict]:
     """Public, non-sensitive view of customers for the admin/demo panel."""
-    return copy.deepcopy(_state["customers"])
+    out = copy.deepcopy(_state["customers"])
+    for c in out:
+        c.pop("phone", None)  # keep the public view free of PII-shaped fields
+    return out
 
 
 def find_customer(email: str) -> dict | None:
@@ -98,10 +101,16 @@ def _now() -> str:
     return datetime.now(timezone.utc).isoformat()
 
 
-def record_refund(customer: dict, order: dict, item: dict, amount: float) -> dict:
+def record_refund(customer: dict, order: dict, item: dict, amount: float) -> dict | None:
     """Mark an item refunded and record the refund. Caller MUST have confirmed
-    policy approval first (issue_refund re-checks before calling this)."""
+    policy approval first (issue_refund re-checks before calling this).
+
+    Re-checks the ``refunded`` flag *inside* the lock and returns ``None`` if the
+    item was already refunded — this closes the read-then-write race so two
+    concurrent approved requests for the same item cannot both record a refund."""
     with _lock:
+        if item.get("refunded"):
+            return None
         item["refunded"] = True
         _seq["refund"] += 1
         refund = {

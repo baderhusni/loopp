@@ -52,7 +52,7 @@ export default function TraceView({ run }: { run: RunDetail | null }) {
         <Metric k="errors / retries" v={String(errors)} />
         <Metric k="latency" v={dur != null ? `${Math.round(dur)} ms` : "—"} />
         <Metric k="tokens" v={tokens != null ? tokens.toLocaleString() : "—"} />
-        <Metric k="est. cost" v={run.cost_usd != null ? `$${run.cost_usd.toFixed(4)}` : "$0"} />
+        <Metric k="SDK cost (USD)" v={run.cost_usd != null ? `$${run.cost_usd.toFixed(4)}` : "$0"} />
         {run.num_turns != null && <Metric k="model turns" v={String(run.num_turns)} />}
       </div>
 

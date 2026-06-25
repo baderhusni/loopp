@@ -164,9 +164,9 @@ For any run, the admin trace shows:
 - **Retries / failed steps** — e.g. a wrong order number makes `get_order` return an
   error (flagged red); the agent recovers and asks the customer to re-check. Try the
   "🔁 Wrong order # (retry)" chip.
-- **Token cost** — `usage` token counts (input/output/cache) and an **estimated**
-  API-equivalent cost. (On a subscription there's no per-token charge; the figure is
-  the SDK's estimate of what the same tokens would cost on the API.)
+- **Token cost** — `usage` token counts (input/output/cache) plus the **SDK-reported
+  cost** (`total_cost_usd`). On a subscription there's no per-token charge; this figure
+  is the SDK's API-equivalent estimate for the same tokens, shown for visibility.
 - **Latency** — per-step elapsed time and total wall-clock duration.
 - **Decision** — APPROVED / DENIED / ESCALATED, derived from the tools that ran.
 
