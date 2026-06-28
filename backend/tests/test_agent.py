@@ -182,6 +182,21 @@ def test_claude_auth_failure_falls_back_to_mock_with_hint():
     assert "401" not in r["reply"]  # the raw error is NOT shown as the agent's reply
 
 
+def test_run_turn_streams_events_to_emitter():
+    """The live view relies on run_turn pushing each step to the emitter as it
+    happens (tool_start before each tool, plus the completed tool events)."""
+    events: list[dict] = []
+    asyncio.run(agent.run_turn(
+        None, "alice@example.com refund ITEM-1 from ORD-5001",
+        engine="mock", emitter=events.append))
+    types = [e["type"] for e in events]
+    assert "tool_start" in types and "tool" in types
+    # a tool_start for issue_refund precedes its completed tool event
+    i_start = next(i for i, e in enumerate(events) if e["type"] == "tool_start" and e["name"] == "issue_refund")
+    i_done = next(i for i, e in enumerate(events) if e["type"] == "tool" and e["name"] == "issue_refund")
+    assert i_start < i_done
+
+
 def test_mock_agent_injection_does_not_bypass():
     """Pleading / injection cannot force an unauthorized refund."""
     r = _turn(

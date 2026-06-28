@@ -36,6 +36,10 @@ SCREEN_META = [
      "The verbatim refund policy the agent is bound to — the single source of truth."),
     ("10-trace-detail.png", "Admin — full agent trace",
      "Per-run internal reasoning: each tool call’s input/output, interleaved agent reasoning, per-step latency, token usage, SDK cost, and the final decision."),
+    ("11-live-agent-mock.png", "Live agent — step by step",
+     "The “Live agent” page streams each tool call as the agent makes it (find_customer → get_order → check_refund_eligibility → issue_refund) with full input/output, then the decision banner — the agent’s actual work, live."),
+    ("12-live-agent-streaming.png", "Live agent — real subscription run",
+     "The same page on the live Claude engine: the agent’s reasoning, the escalate_to_human tool I/O (ticket ESC-9001), and the ESCALATED verdict with real tokens, cost and latency."),
 ]
 
 

@@ -246,6 +246,7 @@ def run_tool(name: str, tool_input: dict[str, Any]) -> tuple[dict, bool]:
     """Execute a tool by name, timing it and recording the call to the active run
     trace. Returns (result_dict, is_error)."""
     spec = TOOLS_BY_NAME.get(name)
+    trace.record_tool_start(name, tool_input)
     started = time.perf_counter()
     if spec is None:
         result = {"error": f"Unknown tool '{name}'."}

@@ -381,13 +381,13 @@ def resolve_engine(requested: str | None) -> str:
     return "claude" if sdk_available() else "mock"
 
 
-async def run_turn(conversation_id: str | None, message: str, engine: str | None = None) -> dict:
+async def run_turn(conversation_id: str | None, message: str, engine: str | None = None, emitter=None) -> dict:
     conv_id = conversation_id or _new_conversation_id()
     transcript = _conversations.setdefault(conv_id, [])
     engine_name = resolve_engine(engine)
 
     run_id = trace.new_run_id()
-    ctx, token = trace.start(run_id, conv_id, message)
+    ctx, token = trace.start(run_id, conv_id, message, emitter=emitter)
     fallback_reason = None
     try:
         if engine_name == "claude":

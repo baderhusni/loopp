@@ -40,6 +40,42 @@ export async function sendChat(
   return res.json() as Promise<ChatResponse>;
 }
 
+// Stream one turn live via SSE. Calls onEvent for each `data:` frame
+// (tool_start, tool, assistant, info, done, error).
+export async function streamChat(
+  message: string,
+  conversationId: string | null,
+  engine: string,
+  onEvent: (ev: any) => void
+): Promise<void> {
+  const res = await fetch(`${BASE}/chat/stream`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ message, conversation_id: conversationId, engine }),
+  });
+  if (!res.ok || !res.body) throw new Error(`stream failed (${res.status})`);
+  const reader = res.body.getReader();
+  const dec = new TextDecoder();
+  let buf = "";
+  for (;;) {
+    const { done, value } = await reader.read();
+    if (done) break;
+    buf += dec.decode(value, { stream: true });
+    let idx: number;
+    while ((idx = buf.indexOf("\n\n")) >= 0) {
+      const frame = buf.slice(0, idx);
+      buf = buf.slice(idx + 2);
+      const line = frame.split("\n").find((l) => l.startsWith("data:"));
+      if (!line) continue; // keep-alive comment frame
+      try {
+        onEvent(JSON.parse(line.slice(5).trim()));
+      } catch {
+        /* ignore malformed frame */
+      }
+    }
+  }
+}
+
 export async function getRuns(): Promise<RunSummary[]> {
   const data = await jget<{ runs: RunSummary[] }>("/runs");
   return data.runs;

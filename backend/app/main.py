@@ -8,12 +8,14 @@ a clean separation between UI, API, and the orchestration layer.
 
 from __future__ import annotations
 
+import asyncio
+import json
 import os
 from pathlib import Path
 
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import PlainTextResponse
+from fastapi.responses import PlainTextResponse, StreamingResponse
 from fastapi.staticfiles import StaticFiles
 
 from . import agent, store, trace
@@ -48,6 +50,44 @@ def health() -> HealthResponse:
 async def chat(req: ChatRequest) -> ChatResponse:
     result = await agent.run_turn(req.conversation_id, req.message, req.engine)
     return ChatResponse(**result)
+
+
+@app.post("/api/chat/stream")
+async def chat_stream(req: ChatRequest) -> StreamingResponse:
+    """Run one turn and stream the agent's work live via Server-Sent Events.
+
+    Emits a `data:`-framed JSON event for each step as it happens — tool_start,
+    tool (with I/O + latency), assistant (reasoning/reply), info — and a final
+    `done` event carrying the reply, decision and usage. The "Live agent" page
+    consumes this to show the agent working in real time.
+    """
+    queue: asyncio.Queue = asyncio.Queue()
+
+    def emit(ev: dict) -> None:
+        queue.put_nowait(ev)
+
+    async def gen():
+        task = asyncio.create_task(
+            agent.run_turn(req.conversation_id, req.message, req.engine, emitter=emit)
+        )
+        while not task.done() or not queue.empty():
+            try:
+                ev = await asyncio.wait_for(queue.get(), timeout=0.25)
+            except asyncio.TimeoutError:
+                yield ": keep-alive\n\n"  # comment frame keeps the connection warm
+                continue
+            yield f"data: {json.dumps(ev)}\n\n"
+        try:
+            result = task.result()
+            yield f"data: {json.dumps({'type': 'done', **result})}\n\n"
+        except Exception as exc:  # pragma: no cover — run_turn handles its own errors
+            yield f"data: {json.dumps({'type': 'error', 'message': str(exc)})}\n\n"
+
+    return StreamingResponse(
+        gen(),
+        media_type="text/event-stream",
+        headers={"Cache-Control": "no-cache", "X-Accel-Buffering": "no", "Connection": "keep-alive"},
+    )
 
 
 @app.get("/api/runs")

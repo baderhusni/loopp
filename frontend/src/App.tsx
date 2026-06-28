@@ -3,10 +3,14 @@ import { getHealth, sendChat } from "./api";
 import type { ChatMessage, Health } from "./types";
 import ChatWindow from "./components/ChatWindow";
 import AdminDashboard from "./components/AdminDashboard";
+import LiveAgent from "./components/LiveAgent";
+
+type View = "console" | "live";
 
 export default function App() {
   const [health, setHealth] = useState<Health | null>(null);
   const [engine, setEngine] = useState<string>("auto");
+  const [view, setView] = useState<View>("console");
   const [conversationId, setConversationId] = useState<string | null>(null);
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [busy, setBusy] = useState(false);
@@ -46,6 +50,14 @@ export default function App() {
           <h1>Acme Refund Support Agent</h1>
           <div className="sub">AI agent that processes or denies e-commerce refunds</div>
         </div>
+        <nav className="viewnav">
+          <button className={`vbtn ${view === "console" ? "active" : ""}`} onClick={() => setView("console")}>
+            Console
+          </button>
+          <button className={`vbtn ${view === "live" ? "active" : ""}`} onClick={() => setView("live")}>
+            Live agent
+          </button>
+        </nav>
         <div className="spacer" />
         <div className="badges">
           {health ? (
@@ -70,16 +82,22 @@ export default function App() {
         </div>
       </header>
 
-      <div className="main">
-        <ChatWindow
-          messages={messages}
-          busy={busy}
-          onSend={handleSend}
-          onNew={handleNew}
-          conversationId={conversationId}
-        />
-        <AdminDashboard lastRunId={lastRunId} refreshTick={refreshTick} />
-      </div>
+      {view === "console" ? (
+        <div className="main">
+          <ChatWindow
+            messages={messages}
+            busy={busy}
+            onSend={handleSend}
+            onNew={handleNew}
+            conversationId={conversationId}
+          />
+          <AdminDashboard lastRunId={lastRunId} refreshTick={refreshTick} />
+        </div>
+      ) : (
+        <div className="main single">
+          <LiveAgent engine={engine} />
+        </div>
+      )}
     </div>
   );
 }

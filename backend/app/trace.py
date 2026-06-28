@@ -24,7 +24,7 @@ _run_ids = itertools.count(1)
 class RunContext:
     """Accumulates ordered events for a single agent run."""
 
-    def __init__(self, run_id: str, conversation_id: str, user_message: str):
+    def __init__(self, run_id: str, conversation_id: str, user_message: str, emitter=None):
         self.run_id = run_id
         self.conversation_id = conversation_id
         self.user_message = user_message
@@ -32,13 +32,31 @@ class RunContext:
         self._start_perf = time.perf_counter()
         self._seq = itertools.count(1)
         self.events: list[dict] = []
+        # Optional live listener (e.g. an SSE queue). Receives each event as it
+        # happens so the "Live agent" view can render the run in real time.
+        self._emitter = emitter
+
+    def _push(self, event: dict) -> None:
+        if self._emitter is not None:
+            try:
+                self._emitter(dict(event))
+            except Exception:  # never let a live listener break the run
+                pass
 
     def add(self, event: dict[str, Any]) -> dict:
         event = dict(event)
         event["seq"] = next(self._seq)
         event["t_ms"] = round((time.perf_counter() - self._start_perf) * 1000, 1)
         self.events.append(event)
+        self._push(event)
         return event
+
+    def emit(self, event: dict[str, Any]) -> None:
+        """Send a stream-only event to the live listener WITHOUT storing it in the
+        saved trace (e.g. a 'tool is being called' indicator)."""
+        event = dict(event)
+        event["t_ms"] = round((time.perf_counter() - self._start_perf) * 1000, 1)
+        self._push(event)
 
     def elapsed_ms(self) -> float:
         return round((time.perf_counter() - self._start_perf) * 1000, 1)
@@ -48,10 +66,17 @@ def new_run_id() -> str:
     return f"run-{next(_run_ids):04d}"
 
 
-def start(run_id: str, conversation_id: str, user_message: str) -> tuple[RunContext, Any]:
-    ctx = RunContext(run_id, conversation_id, user_message)
+def start(run_id: str, conversation_id: str, user_message: str, emitter=None) -> tuple[RunContext, Any]:
+    ctx = RunContext(run_id, conversation_id, user_message, emitter=emitter)
     token = _ctx.set(ctx)
     return ctx, token
+
+
+def record_tool_start(name: str, tool_input: dict) -> None:
+    """Stream-only signal that a tool is about to run (for the live view)."""
+    ctx = current()
+    if ctx is not None:
+        ctx.emit({"type": "tool_start", "name": name, "input": tool_input})
 
 
 def finish(token: Any) -> None:
