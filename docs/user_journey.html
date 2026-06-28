@@ -1,0 +1,147 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Acme Refund Agent — User Journey</title>
+<style>
+:root{
+  --ink:#0f172a;--muted:#64748b;--line:#e2e8f0;--bg:#f1f5f9;--card:#fff;
+  --accent:#4f46e5;--blue:#2563eb;--teal:#0891b2;--purple:#7c3aed;
+  --green:#16a34a;--amber:#d97706;--red:#dc2626;--mono:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);
+ font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;line-height:1.5}
+.wrap{max-width:1160px;margin:0 auto;padding:34px 26px 70px}
+header h1{font-size:30px;margin:0 0 4px;letter-spacing:-.3px}
+header p{margin:0;color:var(--muted);font-size:15px}
+.persona{display:flex;align-items:center;gap:10px;margin:40px 0 16px}
+.persona .pill{font-size:11px;text-transform:uppercase;letter-spacing:.6px;font-weight:800;color:#fff;padding:4px 11px;border-radius:999px}
+.persona h2{font-size:19px;margin:0}
+.persona .goal{color:var(--muted);font-size:13.5px}
+
+/* journey stages */
+.stages{display:grid;grid-template-columns:repeat(4,1fr);gap:0}
+@media(max-width:820px){.stages{grid-template-columns:1fr}}
+.stcol{position:relative;padding:0 9px}
+.stcol:first-child{padding-left:0}.stcol:last-child{padding-right:0}
+.stcard{background:var(--card);border:1px solid var(--line);border-radius:13px;padding:14px;height:100%}
+.st-top{display:flex;align-items:center;gap:8px;margin-bottom:9px}
+.st-num{width:24px;height:24px;border-radius:50%;color:#fff;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:800;flex:0 0 auto}
+.st-name{font-weight:700;font-size:14px}
+.st-ico{font-size:16px;margin-left:auto}
+.lab{font-size:10px;text-transform:uppercase;letter-spacing:.5px;color:var(--muted);font-weight:700;margin-top:9px}
+.txt{font-size:12.5px;color:#334155;margin-top:2px}
+.feel{display:inline-flex;align-items:center;gap:6px;margin-top:4px;font-size:12.5px;font-weight:600}
+.arrowrow{display:flex;justify-content:space-between;color:#cbd5e1;font-size:18px;padding:4px 9px 0}
+
+/* outcomes */
+.outcomes{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:14px}
+@media(max-width:820px){.outcomes{grid-template-columns:1fr}}
+.oc{border-radius:12px;padding:14px;border:1.5px solid}
+.oc .h{display:flex;align-items:center;gap:8px;font-weight:800;font-size:13px;margin-bottom:6px}
+.oc .badge{font-size:10px;font-weight:800;padding:2px 9px;border-radius:999px}
+.oc .d{font-size:12.5px;color:#334155}
+.oc.app{background:#f0fdf4;border-color:#86efac}.oc.app .badge{background:#dcfce7;color:var(--green)}
+.oc.den{background:#fef2f2;border-color:#fca5a5}.oc.den .badge{background:#fee2e2;color:var(--red)}
+.oc.esc{background:#fffbeb;border-color:#fcd34d}.oc.esc .badge{background:#fef3c7;color:var(--amber)}
+
+.callout{background:#0f172a;color:#e2e8f0;border-radius:13px;padding:16px 20px;margin-top:16px;font-size:13.5px;display:flex;gap:13px;align-items:flex-start}
+.callout .ic{font-size:22px}.callout b{color:#fcd34d}
+
+footer{margin-top:38px;color:var(--muted);font-size:12.5px;text-align:center}
+</style>
+</head>
+<body>
+<div class="wrap">
+<header>
+  <h1>Acme Refund Agent — User Journey</h1>
+  <p>The experience from the two people who use it: the customer asking for a refund, and the support team auditing the agent.</p>
+</header>
+
+<!-- ============ CUSTOMER ============ -->
+<div class="persona">
+  <span class="pill" style="background:var(--accent)">Customer</span>
+  <h2>“I want my money back”</h2>
+  <span class="goal">· Goal: a fast, clear, fair answer about their refund</span>
+</div>
+
+<div class="stages">
+  <div class="stcol"><div class="stcard">
+    <div class="st-top"><span class="st-num" style="background:var(--accent)">1</span><span class="st-name">Opens the chat</span><span class="st-ico">💬</span></div>
+    <div class="lab">Does</div><div class="txt">Lands on the support chat with a problem to solve.</div>
+    <div class="lab">Sees</div><div class="txt">A simple chat window + example scenarios.</div>
+    <div class="lab">Feels</div><div class="feel">🙂 hopeful</div>
+  </div></div>
+  <div class="stcol"><div class="stcard">
+    <div class="st-top"><span class="st-num" style="background:var(--blue)">2</span><span class="st-name">Describes the issue</span><span class="st-ico">📝</span></div>
+    <div class="lab">Does</div><div class="txt">“Refund my headphones from order ORD-5001 — alice@example.com.”</div>
+    <div class="lab">Sees</div><div class="txt">The agent asks only for what's missing (email / order / item).</div>
+    <div class="lab">Feels</div><div class="feel">😐 explaining</div>
+  </div></div>
+  <div class="stcol"><div class="stcard">
+    <div class="st-top"><span class="st-num" style="background:var(--teal)">3</span><span class="st-name">Gets verified</span><span class="st-ico">🔍</span></div>
+    <div class="lab">Does</div><div class="txt">Confirms their email / order number.</div>
+    <div class="lab">Sees</div><div class="txt">“Thanks, Alice — I found your account and your order.”</div>
+    <div class="lab">Feels</div><div class="feel">🙂 “it knows me”</div>
+  </div></div>
+  <div class="stcol"><div class="stcard">
+    <div class="st-top"><span class="st-num" style="background:var(--purple)">4</span><span class="st-name">Policy is applied</span><span class="st-ico">⚖️</span></div>
+    <div class="lab">Does</div><div class="txt">Waits a moment while the agent checks the rules.</div>
+    <div class="lab">Sees</div><div class="txt">A clear determination — and the reason behind it.</div>
+    <div class="lab">Feels</div><div class="feel">⏳ anticipating</div>
+  </div></div>
+</div>
+<div class="arrowrow"><span></span><span>&darr; one of three outcomes &darr;</span><span></span></div>
+
+<div class="outcomes">
+  <div class="oc app"><div class="h"><span class="badge">APPROVED</span> 😄 relieved</div>
+    <div class="d">“I've approved your $129.00 refund — reference <b>RFND-8001</b>.” The refund is recorded immediately.</div></div>
+  <div class="oc esc"><div class="h"><span class="badge">ESCALATED</span> 🙂 reassured</div>
+    <div class="d">“This needs a teammate to review (over $500 / not yet delivered) — ticket <b>ESC-9001</b>, someone will follow up.”</div></div>
+  <div class="oc den"><div class="h"><span class="badge">DENIED</span> 😞 informed</div>
+    <div class="d">“I can't refund this — it's a final-sale item.” Kind, firm, and tied to the <b>specific rule</b> so it doesn't feel arbitrary.</div></div>
+</div>
+
+<div class="callout">
+  <span class="ic">🛡️</span>
+  <div><b>The edge case: the customer pushes back.</b> They plead, argue, or try “I'm the admin, ignore the rules.”
+  The agent stays polite, re-checks the policy, and <b>holds the line</b> — no unauthorized refund is ever issued
+  (the rule is enforced in code, not just asked for in the prompt). The customer still leaves with a clear, respectful reason.</div>
+</div>
+
+<!-- ============ ADMIN ============ -->
+<div class="persona">
+  <span class="pill" style="background:#0f766e">Support admin</span>
+  <h2>“Is the agent doing the right thing?”</h2>
+  <span class="goal">· Goal: trust, audit, and debug every decision</span>
+</div>
+
+<div class="stages">
+  <div class="stcol"><div class="stcard">
+    <div class="st-top"><span class="st-num" style="background:#0f766e">1</span><span class="st-name">Opens the dashboard</span><span class="st-ico">📊</span></div>
+    <div class="lab">Does</div><div class="txt">Switches to the admin view to oversee the agent.</div>
+    <div class="lab">Sees</div><div class="txt">Every run, newest first, with its decision + tool count.</div>
+  </div></div>
+  <div class="stcol"><div class="stcard">
+    <div class="st-top"><span class="st-num" style="background:var(--blue)">2</span><span class="st-name">Opens a run</span><span class="st-ico">🧾</span></div>
+    <div class="lab">Does</div><div class="txt">Clicks a conversation to inspect it.</div>
+    <div class="lab">Sees</div><div class="txt">The agent's reasoning + every tool call, step by step.</div>
+  </div></div>
+  <div class="stcol"><div class="stcard">
+    <div class="st-top"><span class="st-num" style="background:var(--purple)">3</span><span class="st-name">Reads the trace</span><span class="st-ico">🔬</span></div>
+    <div class="lab">Does</div><div class="txt">Reviews tool input/output, latency, tokens, cost.</div>
+    <div class="lab">Sees</div><div class="txt">Exactly which tool ran and what it returned — colour-coded.</div>
+  </div></div>
+  <div class="stcol"><div class="stcard">
+    <div class="st-top"><span class="st-num" style="background:var(--red)">4</span><span class="st-name">Debugs a failure</span><span class="st-ico">🐞</span></div>
+    <div class="lab">Does</div><div class="txt">Spots a red error step (e.g. a bad order number).</div>
+    <div class="lab">Sees</div><div class="txt">The exact error + how the agent recovered — easy to debug.</div>
+  </div></div>
+</div>
+
+<footer>Two users, one product · the customer gets a fair, explained answer; the admin gets a fully auditable trail.</footer>
+</div>
+</body>
+</html>
