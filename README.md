@@ -1,5 +1,7 @@
 # Acme Refund Support Agent
 
+[![CI](https://github.com/baderhusni/loopp/actions/workflows/ci.yml/badge.svg?branch=claude/dreamy-wozniak-ehcgft)](https://github.com/baderhusni/loopp/actions/workflows/ci.yml)
+
 An **AI customer-support agent that processes or denies e-commerce refunds**, built
 for the Loopp full-stack automation challenge. A customer chats with the agent; the
 agent verifies them against a synthetic CRM, applies a written refund policy using
