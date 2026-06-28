@@ -1,0 +1,154 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Acme Refund Agent — Workflow</title>
+<style>
+:root{
+  --ink:#0f172a;--muted:#64748b;--line:#e2e8f0;--bg:#f1f5f9;--card:#fff;
+  --blue:#2563eb;--teal:#0891b2;--purple:#7c3aed;--green:#16a34a;--amber:#d97706;--red:#dc2626;
+  --mono:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);
+ font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;line-height:1.5}
+.wrap{max-width:1140px;margin:0 auto;padding:34px 26px 70px}
+header h1{font-size:30px;margin:0 0 4px;letter-spacing:-.3px}
+header p{margin:0;color:var(--muted);font-size:15px}
+.legend{display:flex;gap:14px;flex-wrap:wrap;margin-top:14px}
+.lg{display:inline-flex;align-items:center;gap:6px;font-size:12px;color:#334155}
+.lg .dot{width:11px;height:11px;border-radius:50%}
+h2{font-size:13px;text-transform:uppercase;letter-spacing:1px;color:var(--muted);margin:38px 0 14px;font-weight:800}
+
+/* lifecycle row */
+.lifecycle{display:flex;align-items:stretch;gap:0;flex-wrap:wrap}
+.stage{flex:1;min-width:150px;background:var(--card);border:1px solid var(--line);border-radius:12px;
+ padding:13px 14px;position:relative}
+.stage .s-k{font-size:10px;text-transform:uppercase;letter-spacing:.5px;color:var(--muted);font-weight:700}
+.stage .s-t{font-weight:700;font-size:14px;margin:3px 0}
+.stage .s-d{font-size:11.5px;color:var(--muted);font-family:var(--mono)}
+.arrow{display:flex;align-items:center;justify-content:center;color:var(--blue);font-size:22px;flex:0 0 26px}
+@media(max-width:760px){.lifecycle{flex-direction:column}.arrow{transform:rotate(90deg);height:24px}}
+
+/* decision loop */
+.loop{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:22px 24px}
+.step{display:flex;gap:14px;align-items:flex-start}
+.step .num{flex:0 0 30px;height:30px;border-radius:50%;color:#fff;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:14px}
+.step .b{flex:1;padding-bottom:8px}
+.step .b .t{font-weight:700;font-size:15px;display:flex;align-items:center;gap:9px;flex-wrap:wrap}
+.step .b .d{color:var(--muted);font-size:13px;margin-top:2px}
+.tool{font-family:var(--mono);font-size:12px;font-weight:700;color:#fff;padding:2px 9px;border-radius:6px}
+.conn{margin-left:14px;border-left:2px dashed #cbd5e1;height:14px}
+
+.branch{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin:6px 0 2px}
+@media(max-width:760px){.branch{grid-template-columns:1fr}}
+.bc{border-radius:11px;padding:12px 14px;border:1.5px solid}
+.bc .h{font-weight:800;font-size:13px;display:flex;align-items:center;gap:8px;margin-bottom:5px}
+.bc .badge{font-size:10px;font-weight:800;padding:2px 8px;border-radius:999px}
+.bc .x{font-size:12.5px;color:#334155}
+.bc.app{background:#f0fdf4;border-color:#86efac}.bc.app .badge{background:#dcfce7;color:var(--green)}
+.bc.esc{background:#fffbeb;border-color:#fcd34d}.bc.esc .badge{background:#fef3c7;color:var(--amber)}
+.bc.den{background:#fef2f2;border-color:#fca5a5}.bc.den .badge{background:#fee2e2;color:var(--red)}
+
+.guard{background:#0f172a;color:#e2e8f0;border-radius:14px;padding:18px 22px;margin-top:18px;font-size:14px;display:flex;gap:14px;align-items:flex-start}
+.guard .ic{font-size:24px}
+.guard b{color:#fcd34d}
+.guard code{background:rgba(255,255,255,.14);color:#fde68a;font-family:var(--mono);font-size:12.5px;padding:1px 6px;border-radius:5px}
+
+/* policy ladder */
+.ladder{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:8px 4px}
+.rung{display:flex;align-items:center;gap:14px;padding:11px 18px;border-bottom:1px solid var(--line);font-size:14px}
+.rung:last-child{border-bottom:none}
+.rung .n{font-family:var(--mono);font-size:12px;color:var(--muted);flex:0 0 26px}
+.rung .c{flex:1}
+.rung .v{font-size:11px;font-weight:800;padding:3px 11px;border-radius:999px;white-space:nowrap}
+.v.APPROVE{background:#dcfce7;color:var(--green)}.v.DENY{background:#fee2e2;color:var(--red)}.v.ESCALATE{background:#fef3c7;color:var(--amber)}
+.rung .r{font-family:var(--mono);font-size:11px;color:var(--muted);flex:0 0 130px;text-align:right}
+footer{margin-top:34px;color:var(--muted);font-size:12.5px;text-align:center}
+</style>
+</head>
+<body>
+<div class="wrap">
+<header>
+  <h1>Acme Refund Agent — Workflow</h1>
+  <p>How one customer message becomes a policy-grounded decision — and why it can't be talked out of the rules.</p>
+  <div class="legend">
+    <span class="lg"><span class="dot" style="background:var(--blue)"></span><code>find_customer</code></span>
+    <span class="lg"><span class="dot" style="background:var(--teal)"></span><code>get_order</code></span>
+    <span class="lg"><span class="dot" style="background:var(--purple)"></span><code>check_refund_eligibility</code></span>
+    <span class="lg"><span class="dot" style="background:var(--green)"></span><code>issue_refund</code></span>
+    <span class="lg"><span class="dot" style="background:var(--amber)"></span><code>escalate_to_human</code></span>
+  </div>
+</header>
+
+<h2>① Request lifecycle</h2>
+<div class="lifecycle">
+  <div class="stage"><div class="s-k">UI</div><div class="s-t">Customer chat</div><div class="s-d">React SPA</div></div>
+  <div class="arrow">&rarr;</div>
+  <div class="stage"><div class="s-k">API</div><div class="s-t">FastAPI</div><div class="s-d">POST /api/chat</div></div>
+  <div class="arrow">&rarr;</div>
+  <div class="stage"><div class="s-k">Orchestration</div><div class="s-t">Agent loop</div><div class="s-d">Claude Agent SDK<br>(subscription · no API key)</div></div>
+  <div class="arrow">&rarr;</div>
+  <div class="stage"><div class="s-k">Tools</div><div class="s-t">5 tools</div><div class="s-d">query CRM · check policy · act</div></div>
+  <div class="arrow">&rarr;</div>
+  <div class="stage"><div class="s-k">Domain</div><div class="s-t">Policy + CRM</div><div class="s-d">policy engine · crm.json</div></div>
+</div>
+<div style="text-align:center;color:var(--muted);font-size:12.5px;margin-top:10px">
+  &uarr; the reply and a full per-run <b>trace</b> (tool I/O · latency · tokens · cost · decision) flow back to the UI
+</div>
+
+<h2>② The agent decision loop</h2>
+<div class="loop">
+  <div class="step"><div class="num" style="background:var(--blue)">1</div><div class="b">
+    <div class="t">Verify the customer <span class="tool" style="background:var(--blue)">find_customer</span></div>
+    <div class="d">Look up by email; refuse to act on an account that isn't theirs. A bad email returns an error step → the agent asks again.</div>
+  </div></div>
+  <div class="conn"></div>
+  <div class="step"><div class="num" style="background:var(--teal)">2</div><div class="b">
+    <div class="t">Fetch the order <span class="tool" style="background:var(--teal)">get_order</span></div>
+    <div class="d">Pull the items: price, quantity, final-sale flag, refunded flag, delivery status.</div>
+  </div></div>
+  <div class="conn"></div>
+  <div class="step"><div class="num" style="background:var(--purple)">3</div><div class="b">
+    <div class="t">Check the policy <span class="tool" style="background:var(--purple)">check_refund_eligibility</span></div>
+    <div class="d">The <b>deterministic policy engine</b> returns a verdict + the exact rule. <b>Every</b> decision — even a denial — is grounded here.</div>
+    <div class="branch">
+      <div class="bc app"><div class="h"><span class="badge">APPROVE</span></div>
+        <div class="x"><span class="tool" style="background:var(--green);font-size:11px">issue_refund</span> &nbsp;re-checks the policy, then records the refund.</div></div>
+      <div class="bc esc"><div class="h"><span class="badge">ESCALATE</span></div>
+        <div class="x"><span class="tool" style="background:var(--amber);font-size:11px">escalate_to_human</span> &nbsp;opens a ticket: &gt;$500, undelivered, or defective final-sale.</div></div>
+      <div class="bc den"><div class="h"><span class="badge">DENY</span></div>
+        <div class="x">Explain the decision and the specific rule, politely and firmly.</div></div>
+    </div>
+  </div></div>
+  <div class="conn"></div>
+  <div class="step"><div class="num" style="background:#475569">4</div><div class="b">
+    <div class="t">Reply &amp; record the trace</div>
+    <div class="d">State the outcome + the rule. The full run (tool I/O, reasoning, latency, tokens, cost) is saved to the admin trace.</div>
+  </div></div>
+</div>
+
+<div class="guard">
+  <span class="ic">&#128737;</span>
+  <div><b>Defense in depth — why pleading &amp; prompt injection fail.</b> The policy is enforced in the prompt
+  <i>and</i> inside the tools: <code>issue_refund</code> runs the same policy engine and <b>refuses</b> any non-APPROVE verdict.
+  So a customer can make the model <i>try</i> a refund, but the tool will not perform it — the prompt is the soft layer,
+  the code is the hard guarantee. Verified live: injection &rarr; <b>DENIED</b>, zero refunds recorded.</div>
+</div>
+
+<h2>③ Policy decision ladder (evaluated in order)</h2>
+<div class="ladder">
+  <div class="rung"><span class="n">1</span><span class="c">Customer / order / item not found or not owned</span><span class="v DENY">DENY</span><span class="r">identity</span></div>
+  <div class="rung"><span class="n">2</span><span class="c">Order not yet delivered</span><span class="v ESCALATE">ESCALATE</span><span class="r">cancellation</span></div>
+  <div class="rung"><span class="n">3</span><span class="c">Item already refunded</span><span class="v DENY">DENY</span><span class="r">no duplicates</span></div>
+  <div class="rung"><span class="n">4</span><span class="c">Final-sale item &nbsp;(defective &rarr; ESCALATE)</span><span class="v DENY">DENY</span><span class="r">final sale</span></div>
+  <div class="rung"><span class="n">5</span><span class="c">Outside the window &nbsp;(30 days · 60 if defective)</span><span class="v DENY">DENY</span><span class="r">return window</span></div>
+  <div class="rung"><span class="n">6</span><span class="c">Refund amount &gt; $500.00</span><span class="v ESCALATE">ESCALATE</span><span class="r">high value</span></div>
+  <div class="rung"><span class="n">7</span><span class="c">Otherwise — all conditions satisfied</span><span class="v APPROVE">APPROVE</span><span class="r">auto-approve</span></div>
+</div>
+
+<footer>Acme Refund Support Agent · the prompt makes it helpful &amp; explainable; the tools make it correct &amp; unbypassable.</footer>
+</div>
+</body>
+</html>
