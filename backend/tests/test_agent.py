@@ -242,3 +242,14 @@ def test_policy_endpoint():
     res = client.get("/api/policy")
     assert res.status_code == 200
     assert "Refund Policy" in res.text
+
+
+def test_tools_endpoint():
+    res = client.get("/api/tools")
+    assert res.status_code == 200
+    tools_ = res.json()["tools"]
+    names = [t["name"] for t in tools_]
+    assert names == ["find_customer", "get_order", "check_refund_eligibility", "issue_refund", "escalate_to_human"]
+    # each tool exposes its params + required list
+    fc = next(t for t in tools_ if t["name"] == "find_customer")
+    assert fc["params"] == ["email"] and fc["required"] == ["email"]

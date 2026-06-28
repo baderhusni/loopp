@@ -4,8 +4,9 @@ import type { RunDetail, RunSummary } from "../types";
 import TraceView from "./TraceView";
 import PolicyView from "./PolicyView";
 import CrmExplorer from "./CrmExplorer";
+import ToolsPanel from "./ToolsPanel";
 
-type Tab = "trace" | "policy" | "crm";
+type Tab = "trace" | "tools" | "crm" | "policy";
 
 interface Props {
   lastRunId: string | null;
@@ -53,6 +54,9 @@ export default function AdminDashboard({ lastRunId, refreshTick }: Props) {
           <button className={`tab ${tab === "trace" ? "active" : ""}`} onClick={() => setTab("trace")}>
             Agent trace
           </button>
+          <button className={`tab ${tab === "tools" ? "active" : ""}`} onClick={() => setTab("tools")}>
+            Tools
+          </button>
           <button className={`tab ${tab === "crm" ? "active" : ""}`} onClick={() => setTab("crm")}>
             CRM data
           </button>
@@ -87,6 +91,11 @@ export default function AdminDashboard({ lastRunId, refreshTick }: Props) {
         </div>
       )}
 
+      {tab === "tools" && (
+        <div className="crm-scroll">
+          <ToolsPanel variant="full" />
+        </div>
+      )}
       {tab === "policy" && <PolicyView />}
       {tab === "crm" && <CrmExplorer />}
     </section>

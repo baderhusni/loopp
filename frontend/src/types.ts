@@ -103,6 +103,13 @@ export interface Customer {
   orders: Order[];
 }
 
+export interface Tool {
+  name: string;
+  description: string;
+  params: string[];
+  required: string[];
+}
+
 export interface ChatMessage {
   role: "customer" | "agent";
   text: string;

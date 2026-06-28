@@ -4,6 +4,7 @@ import type {
   Health,
   RunDetail,
   RunSummary,
+  Tool,
 } from "./types";
 
 // Always relative: dev proxies /api -> backend; prod serves dist from backend.
@@ -83,6 +84,11 @@ export async function getRuns(): Promise<RunSummary[]> {
 
 export async function getRun(runId: string): Promise<RunDetail> {
   return jget<RunDetail>(`/runs/${runId}`);
+}
+
+export async function getTools(): Promise<Tool[]> {
+  const data = await jget<{ tools: Tool[] }>("/tools");
+  return data.tools;
 }
 
 export async function getPolicy(): Promise<string> {

@@ -40,6 +40,10 @@ SCREEN_META = [
      "The “Live agent” page streams each tool call as the agent makes it (find_customer → get_order → check_refund_eligibility → issue_refund) with full input/output, then the decision banner — the agent’s actual work, live."),
     ("12-live-agent-streaming.png", "Live agent — real subscription run",
      "The same page on the live Claude engine: the agent’s reasoning, the escalate_to_human tool I/O (ticket ESC-9001), and the ESCALATED verdict with real tokens, cost and latency."),
+    ("13-tools-live.png", "Live agent — tools, color-coded",
+     "An “Agent tools (5)” strip lists every tool the agent may call (with a per-run usage count), and each step carries the tool's colour-coded name badge + plain-English label, so it's always obvious which tool ran."),
+    ("14-tools-admin.png", "Admin — Tools reference",
+     "The admin Tools tab documents all 5 tools — name, label, description, and parameters (required marked *) — and states the agent can call only these (no shell, file, or network access)."),
 ]
 
 

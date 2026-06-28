@@ -1,5 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { streamChat } from "../api";
+import { toolMeta } from "../toolMeta";
+import ToolsPanel from "./ToolsPanel";
 
 type FeedItem =
   | { kind: "user"; text: string }
@@ -101,6 +103,16 @@ export default function LiveAgent({ engine }: { engine: string }) {
     setConversationId(null);
   }
 
+  // Which tool (if any) is running right now, and how many times each ran.
+  let activeTool: string | null = null;
+  const usedCounts: Record<string, number> = {};
+  for (const it of feed) {
+    if (it.kind === "tool") {
+      if (it.status === "running") activeTool = it.name;
+      else usedCounts[it.name] = (usedCounts[it.name] || 0) + 1;
+    }
+  }
+
   return (
     <section className="pane live">
       <div className="pane-head">
@@ -139,6 +151,8 @@ export default function LiveAgent({ engine }: { engine: string }) {
         </div>
       </div>
 
+      <ToolsPanel variant="strip" activeTool={activeTool} usedCounts={usedCounts} />
+
       <div className="live-feed" ref={scrollRef}>
         {feed.length === 0 && !running && (
           <div className="empty-hint">Send a message (or tap a scenario) to watch the agent's tool calls stream in live.</div>
@@ -160,11 +174,14 @@ export default function LiveAgent({ engine }: { engine: string }) {
             return <div className="live-info" key={i}>⚠ {it.message}</div>;
           }
           // tool
+          const m = toolMeta(it.name);
           return (
-            <div className={`live-step tool ${it.is_error ? "err" : ""} ${it.status}`} key={i}>
+            <div className={`live-step tool ${it.is_error ? "err" : ""} ${it.status}`} key={i}
+                 style={{ ["--tc" as string]: m.color }}>
               <div className="live-step-head">
-                <span className="ico">{it.status === "running" ? <span className="spin" /> : it.is_error ? "✗" : "🔧"}</span>
-                <span className="tname">{it.name}</span>
+                <span className="ico">{it.status === "running" ? <span className="spin" /> : m.icon}</span>
+                <code className="tname-badge" style={{ background: m.color }}>{it.name}</code>
+                <span className="tlabel">{m.label}</span>
                 {it.status === "running" ? (
                   <span className="muted">calling…</span>
                 ) : (

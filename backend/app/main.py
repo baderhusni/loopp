@@ -18,7 +18,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import PlainTextResponse, StreamingResponse
 from fastapi.staticfiles import StaticFiles
 
-from . import agent, store, trace
+from . import agent, store, tools, trace
 from .models import ChatRequest, ChatResponse, HealthResponse
 
 app = FastAPI(
@@ -101,6 +101,22 @@ def get_run(run_id: str) -> dict:
     if run is None:
         raise HTTPException(status_code=404, detail=f"Run {run_id} not found")
     return run
+
+
+@app.get("/api/tools")
+def list_tools() -> dict:
+    """The exact set of tools the agent is allowed to call (nothing else)."""
+    return {
+        "tools": [
+            {
+                "name": t.name,
+                "description": t.description,
+                "params": list((t.input_schema.get("properties") or {}).keys()),
+                "required": t.input_schema.get("required", []),
+            }
+            for t in tools.TOOLS
+        ]
+    }
 
 
 @app.get("/api/policy", response_class=PlainTextResponse)

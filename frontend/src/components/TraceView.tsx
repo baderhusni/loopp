@@ -1,4 +1,5 @@
 import type { RunDetail, TraceEvent } from "../types";
+import { toolMeta } from "../toolMeta";
 
 function fmt(obj: unknown): string {
   return JSON.stringify(obj, null, 2);
@@ -17,7 +18,8 @@ function ToolStep({ e }: { e: TraceEvent }) {
   return (
     <div className={`step tool ${e.is_error ? "err" : ""}`}>
       <div className="step-head">
-        <span className="name">{e.name}</span>
+        <code className="tname-badge" style={{ background: toolMeta(e.name!).color }}>{e.name}</code>
+        <span className="tlabel">{toolMeta(e.name!).label}</span>
         {e.is_error ? <span className="tag-err">ERROR</span> : <span className="tag-ok">ok</span>}
         {e.latency_ms != null && <span className="muted">{e.latency_ms} ms</span>}
         <span className="t">@ {Math.round(e.t_ms)} ms</span>
