@@ -47,6 +47,21 @@ The chat UI has one-click buttons for each of these.
 
 ---
 
+## Challenge requirements → where they're met
+
+| Requirement | Implementation |
+|---|---|
+| Synthetic data: **15 customers** + order histories | `backend/app/data/crm.json` (reproducible via `generate_crm.py`) |
+| Written **refund policy** (final sale, > $500 escalation) | `backend/app/data/refund_policy.md` + `app/policy.py` engine |
+| **Local API server** | FastAPI — `backend/app/main.py` |
+| **Agent loop** calling tools dynamically | `backend/app/agent.py` (Claude Agent SDK) → 5 tools in `app/tools.py` |
+| Validate against policy, **hold the line** | deterministic policy engine enforced inside the tools (defense in depth) |
+| **Customer chat** UI | `frontend/src/components/ChatWindow.tsx` |
+| **Admin dashboard** with reasoning logs | `frontend/src/components/AdminDashboard.tsx` + `TraceView.tsx` |
+| Trace: **tool I/O, retries, tokens, latency** | per-run trace, surfaced in the admin dashboard |
+
+---
+
 ## Architecture — clean separation of concerns
 
 ```
@@ -244,12 +259,12 @@ frontend/
     App.tsx
     components/ChatWindow.tsx, AdminDashboard.tsx, TraceView.tsx, CrmExplorer.tsx, PolicyView.tsx
     api.ts, types.ts, styles.css
-CLAUDE.md          # the challenge brief pinned as a hard constraint
+docs/              # architecture report, workflow + flowchart + user-journey diagrams
 ```
 
 ---
 
-## Suggested 5-minute Loom script
+## Demo walkthrough (the 5-minute tour)
 
 1. **(0:00)** Show the UI + the engine badge (`claude`, subscription). Mention: no API
    key — runs on the Claude subscription via the Claude Agent SDK.
