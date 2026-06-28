@@ -162,6 +162,26 @@ def test_mock_customer_switch_resets_downstream_slots():
     assert r2["decision"] is None  # bob's order not stated -> ask, don't reuse alice's
 
 
+def test_claude_auth_failure_falls_back_to_mock_with_hint():
+    """If the Claude engine can't authenticate (e.g. 401), the app must degrade to
+    the mock engine with a helpful note — not surface the raw error as the reply."""
+    async def boom(_transcript, _message):
+        raise RuntimeError("Claude engine error [error]: Failed to authenticate. "
+                           "API Error: 401 Invalid authentication credentials")
+
+    orig = agent._run_claude
+    agent._run_claude = boom  # type: ignore
+    try:
+        r = asyncio.run(agent.run_turn(
+            None, "alice@example.com refund ITEM-1 from ORD-5001", engine="claude"))
+    finally:
+        agent._run_claude = orig  # type: ignore
+    assert r["engine"] == "mock"
+    assert r["decision"] == "APPROVED"  # mock still resolves the request correctly
+    assert r["fallback_reason"] and "authenticate" in r["fallback_reason"].lower()
+    assert "401" not in r["reply"]  # the raw error is NOT shown as the agent's reply
+
+
 def test_mock_agent_injection_does_not_bypass():
     """Pleading / injection cannot force an unauthorized refund."""
     r = _turn(

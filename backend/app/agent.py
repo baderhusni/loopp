@@ -187,6 +187,7 @@ async def _run_claude(transcript: list[dict], message: str) -> tuple[str, dict]:
                     final_reply = "\n".join(parts)
             elif isinstance(msg, ResultMessage):
                 usage = getattr(msg, "usage", None) or {}
+                subtype = getattr(msg, "subtype", None)
                 meta.update({
                     "cost_usd": getattr(msg, "total_cost_usd", None),
                     "duration_ms": getattr(msg, "duration_ms", None),
@@ -194,10 +195,17 @@ async def _run_claude(transcript: list[dict], message: str) -> tuple[str, dict]:
                     "num_turns": getattr(msg, "num_turns", None),
                     "model": getattr(msg, "model", None) or os.getenv("AGENT_MODEL", "sonnet"),
                     "usage": _normalize_usage(usage),
-                    "subtype": getattr(msg, "subtype", None),
+                    "subtype": subtype,
                 })
+                result_text = getattr(msg, "result", "") or ""
+                # The SDK signals an auth/runtime failure as an *error* ResultMessage
+                # (not an exception). Treat it as an engine failure so run_turn falls
+                # back to the mock engine with a clear note, instead of surfacing the
+                # raw error as if the agent had said it.
+                if getattr(msg, "is_error", False) or (subtype and subtype != "success"):
+                    raise RuntimeError(f"Claude engine error [{subtype or 'error'}]: {result_text or 'unknown error'}")
                 if not final_reply:
-                    final_reply = getattr(msg, "result", "") or ""
+                    final_reply = result_text
 
     if not final_reply:
         final_reply = "I'm sorry, I wasn't able to produce a response. Please try rephrasing your request."
@@ -386,7 +394,16 @@ async def run_turn(conversation_id: str | None, message: str, engine: str | None
             try:
                 reply, meta = await _run_claude(list(transcript), message)
             except Exception as exc:  # noqa: BLE001 — fall back so the app never hard-fails
-                fallback_reason = f"Claude engine failed ({type(exc).__name__}: {exc}); used mock."
+                low = str(exc).lower()
+                if any(k in low for k in ("401", "authenticate", "authentication", "credential", "unauthorized")):
+                    fallback_reason = (
+                        "Claude engine couldn't authenticate — the Claude CLI/subscription login is "
+                        "invalid or ANTHROPIC_API_KEY is set to a bad key. Showing a mock answer. Fix: "
+                        "run `unset ANTHROPIC_API_KEY`, then `claude` and /login with your subscription, "
+                        "then restart. (Or switch the engine to 'mock' to use the app without a subscription.)"
+                    )
+                else:
+                    fallback_reason = f"Claude engine failed ({type(exc).__name__}: {exc}); used the mock engine."
                 trace.record_info(fallback_reason)
                 engine_name = "mock"
                 reply, meta = _mock_respond(list(transcript), message)
