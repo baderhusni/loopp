@@ -1,6 +1,6 @@
 # Acme Refund Support Agent
 
-[![CI](https://github.com/baderhusni/loopp/actions/workflows/ci.yml/badge.svg?branch=claude/dreamy-wozniak-ehcgft)](https://github.com/baderhusni/loopp/actions/workflows/ci.yml)
+[![CI](https://github.com/baderhusni/loopp/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/baderhusni/loopp/actions/workflows/ci.yml)
 
 An **AI customer-support agent that processes or denies e-commerce refunds**, built
 for the Loopp full-stack automation challenge. A customer chats with the agent; the
@@ -12,6 +12,15 @@ dashboard shows the agent's full internal reasoning trace for every run.
 > **Claude subscription** — no Anthropic API key and no raw API request loop. The
 > app also ships a deterministic **mock engine** so it runs out-of-the-box even
 > without the SDK/subscription.
+
+> **🔎 Reviewing this? Read first.** Out of the box (`./run.sh`, no setup) the app runs
+> on the **deterministic mock engine** — full UI, full trace, policy enforcement, and
+> injection resistance, with **zero configuration**. The **real Claude agent** runs on a
+> personal Claude subscription (no API key, by design), so it only activates when *you*
+> are logged into the Claude CLI locally — and it's what the **Loom video** demonstrates.
+> A subscription can't be safely hosted, which is why there's no live URL (the brief
+> lists one as optional). Everything you need to evaluate is runnable locally and shown
+> in the Loom.
 
 > 📄 **Project report:** `docs/report.html` — architecture, agent workflow, the full
 > UAT results (22/22), and every screen in one page. Open it in a browser. Regenerate
@@ -118,7 +127,6 @@ unset ANTHROPIC_API_KEY                     # IMPORTANT: if this is set, the SDK
 ```bash
 git clone https://github.com/baderhusni/loopp.git
 cd loopp
-git checkout claude/dreamy-wozniak-ehcgft
 ```
 
 ### 2. Run it — one command
@@ -195,7 +203,7 @@ cd backend && source .venv/bin/activate
 pytest -q
 ```
 
-The suite (19 tests, runs with the mock engine — no SDK/subscription needed) covers
+The suite (24 tests, runs with the mock engine — no SDK/subscription needed) covers
 every policy branch, the tool guardrails (a final-sale or >$500 refund cannot be
 forced, refunds are idempotent), the mock agent end-to-end, prompt-injection
 resistance, and the HTTP API.
