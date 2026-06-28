@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { streamChat } from "../api";
 import { toolMeta } from "../toolMeta";
 import ToolsPanel from "./ToolsPanel";
+import Markdown from "./Markdown";
 
 type FeedItem =
   | { kind: "user"; text: string }
@@ -166,7 +167,7 @@ export default function LiveAgent({ engine }: { engine: string }) {
             return (
               <div className="live-step assistant" key={i}>
                 <div className="live-step-head"><span className="ico">💬</span> agent reasoning</div>
-                <div className="live-step-body assistant-text">{it.text}</div>
+                <div className="live-step-body assistant-text"><Markdown text={it.text} /></div>
               </div>
             );
           }
@@ -222,7 +223,7 @@ export default function LiveAgent({ engine }: { engine: string }) {
                 {final.cost_usd != null && final.cost_usd > 0 && <> · ${final.cost_usd.toFixed(4)}</>}
               </span>
             </div>
-            <div className="lf-reply">{final.reply}</div>
+            <div className="lf-reply"><Markdown text={final.reply} /></div>
             {final.fallback_reason && <div className="fallback-note">⚠ {final.fallback_reason}</div>}
           </div>
         )}

@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import type { ChatMessage } from "../types";
+import Markdown from "./Markdown";
 
 interface Props {
   messages: ChatMessage[];
@@ -91,7 +92,7 @@ export default function ChatWindow({ messages, busy, conversationId, onSend, onN
         {messages.map((m, i) => (
           <div key={i} className={`msg ${m.role}`}>
             <div>
-              <div className="bubble">{m.text}</div>
+              <div className="bubble">{m.role === "agent" ? <Markdown text={m.text} /> : m.text}</div>
               {m.role === "agent" && m.meta && <MetaLine m={m.meta} />}
               {m.role === "agent" && m.meta?.fallback_reason && (
                 <div className="fallback-note">⚠ {m.meta.fallback_reason}</div>

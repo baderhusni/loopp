@@ -1,5 +1,6 @@
 import type { RunDetail, TraceEvent } from "../types";
 import { toolMeta } from "../toolMeta";
+import Markdown from "./Markdown";
 
 function fmt(obj: unknown): string {
   return JSON.stringify(obj, null, 2);
@@ -78,7 +79,7 @@ export default function TraceView({ run }: { run: RunDetail | null }) {
                 <span className="name">agent reasoning / reply</span>
                 <span className="t">@ {Math.round(e.t_ms)} ms</span>
               </div>
-              <div className="step-body assistant-text">{e.text}</div>
+              <div className="step-body assistant-text"><Markdown text={e.text ?? ""} /></div>
             </div>
           );
         }
