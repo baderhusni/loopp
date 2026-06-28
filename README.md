@@ -113,35 +113,44 @@ unset ANTHROPIC_API_KEY                     # IMPORTANT: if this is set, the SDK
 
 ## Quick start
 
-### 1. Backend
+### 1. Get the code
 
 ```bash
-cd backend
-python3 -m venv .venv && source .venv/bin/activate
+git clone https://github.com/baderhusni/loopp.git
+cd loopp
+git checkout claude/dreamy-wozniak-ehcgft
+```
+
+### 2. Run it — one command
+
+```bash
+./run.sh
+```
+
+That's it. It sets up the backend (venv + deps) and frontend (deps + build) on the
+first run, then serves the **whole app — UI + API — at one URL:**
+
+> **http://localhost:8000**
+
+First run installs dependencies (~1–2 min); after that it starts in a few seconds.
+`ANTHROPIC_API_KEY` is unset for you so it uses your **Claude subscription**. No
+subscription handy? Just pick **mock** in the engine dropdown — everything still works.
+
+<details>
+<summary><b>Prefer hot-reload during development? (two-process dev mode)</b></summary>
+
+```bash
+# Terminal 1 — backend
+cd backend && python3 -m venv .venv && source .venv/bin/activate
 pip install -r requirements.txt
-unset ANTHROPIC_API_KEY            # use the subscription, not the metered API
-uvicorn app.main:app --reload --port 8000
+unset ANTHROPIC_API_KEY && uvicorn app.main:app --reload --port 8000
+
+# Terminal 2 — frontend (proxies /api -> :8000)
+cd frontend && npm install && npm run dev    # http://localhost:5173
 ```
 
-### 2. Frontend (separate terminal)
-
-```bash
-cd frontend
-npm install
-npm run dev                        # opens http://localhost:5173 (proxies /api -> :8000)
-```
-
-Open **http://localhost:5173** and start chatting.
-
-### One-process alternative (build the SPA, serve everything from the backend)
-
-```bash
-cd frontend && npm install && npm run build      # produces frontend/dist
-cd ../backend && source .venv/bin/activate
-uvicorn app.main:app --port 8000                 # serves the UI at http://localhost:8000
-```
-
-Helper scripts in `scripts/` wrap these (`scripts/setup.sh`, `scripts/dev.sh`, `scripts/serve.sh`).
+Helper scripts wrap both flows: `scripts/setup.sh`, `scripts/dev.sh` (dev), `scripts/serve.sh` (one process).
+</details>
 
 ---
 
