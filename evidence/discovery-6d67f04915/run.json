@@ -1,0 +1,12 @@
+{
+  "run_id": "6d67f04915",
+  "goal": "Look up member 100412 in the member inquiry screen and return their name, their savings share balance, and the savings account number.",
+  "success": true,
+  "stop_reason": "the model reported the goal was met",
+  "capability": "meridian_core.member_savings_balance",
+  "version": "1.0.0",
+  "moves": 6,
+  "llm_calls": 6,
+  "cost_usd": 0.3043,
+  "artifact_path": "/home/user/loopp/capabilities/meridian_core/member_savings_balance.json"
+}

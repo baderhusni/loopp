@@ -1,0 +1,16 @@
+{
+  "schema_version": "1.0",
+  "tenant_id": "riverbend-fcu",
+  "app_id": "meridian_core",
+  "base_url": "http://127.0.0.1:8800",
+  "control_aliases": {
+    "Member ID": "Member Number",
+    "Search": "Find Member"
+  },
+  "text_aliases": {
+    "No member record found for Member ID": "No member record found for Member Number"
+  },
+  "extra_recovery": [],
+  "step_overrides": [],
+  "notes": "Same MERIDIAN CORE 4.2 build as northstar-cu, configured and branded by a\ndifferent institution. Three aliases are the entire difference:\n  * two controls are renamed (Member ID -> Member Number, Search -> Find Member)\n  * the recorded MEMBER_NOT_FOUND detector quotes the app's message, which\n    embeds this deployment's name for the id field\n\nDeliberately NOT overridden, because nothing needs it:\n  * the accounts grid runs its columns in a different order (Account Number |\n    Type | Status | Balance). The recorded reads address cells by row text and\n    column heading, so they are order-independent already.\n  * this deployment shows a post-sign-on compliance notice. It renders through\n    the product's standard notice chrome, which the base capability's\n    `dismiss_system_notice` recovery rule already matches -- replays here show\n    it firing, and succeeding, as a drift signal rather than a failure.\n  * the sign-on flow, the member summary captions, the step postcondition and\n    the success checkpoint are all identical across both deployments.\n\nReview note: the text alias is avoidable. The detector only needs the stable\nprefix 'No member record found'; the discovery run happened to record the\nlonger sentence. Tightening it in the base capability would shrink this\noverlay to the two genuine control renames -- which is exactly the kind of\nthing capability review is for, and why recordings land as drafts."
+}

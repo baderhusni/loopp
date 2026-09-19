@@ -1,0 +1,231 @@
+{
+  "status": "success",
+  "capability_id": "meridian_core.member_savings_balance",
+  "capability_version": "1.0.0",
+  "run_id": "cb3b197ffd",
+  "tenant_id": "riverbend-fcu",
+  "started_at": "2026-09-19T19:16:20.754202Z",
+  "finished_at": "2026-09-19T19:16:27.283948Z",
+  "duration_ms": 6529,
+  "outputs": {
+    "member_name": "Wen Li",
+    "savings_balance": 8750.25,
+    "savings_account_number": "[REDACTED:account_number]"
+  },
+  "outcome": null,
+  "failure": null,
+  "escalation": null,
+  "steps": [
+    {
+      "index": 0,
+      "step_id": "open_app",
+      "intent": "open the console",
+      "action": "navigate to {base_url}/",
+      "status": "ok",
+      "attempts": 1,
+      "duration_ms": 828,
+      "locator": null,
+      "recoveries": [],
+      "expected": "(text \"Operator Sign On\" present in any frame OR text \"Member Services\" present in any frame)",
+      "observed": "url=http://127.0.0.1:8800/ title='MERIDIAN CORE - Sign On' :: RIVERBEND FEDERAL CU \u00a0|\u00a0 MERIDIAN CORE 4.2 / Operator Sign On / Operator ID / Passcode",
+      "evidence": [],
+      "note": ""
+    },
+    {
+      "index": 1,
+      "step_id": "enter_operator_id",
+      "intent": "enter the service operator id",
+      "action": "type into textbox \"Operator ID\" = <secret:core_operator_id>",
+      "status": "ok",
+      "attempts": 1,
+      "duration_ms": 374,
+      "locator": {
+        "strategy": "role_name",
+        "args": {
+          "detail": "textbox \"Operator ID\"",
+          "mode": "exact"
+        },
+        "confidence": 0.95,
+        "rank": 0,
+        "fallback": false,
+        "structural": false
+      },
+      "recoveries": [],
+      "expected": "",
+      "observed": "url=http://127.0.0.1:8800/ title='MERIDIAN CORE - Sign On' :: RIVERBEND FEDERAL CU \u00a0|\u00a0 MERIDIAN CORE 4.2 / Operator Sign On / Operator ID / Passcode",
+      "evidence": [],
+      "note": ""
+    },
+    {
+      "index": 2,
+      "step_id": "enter_passcode",
+      "intent": "enter the service passcode",
+      "action": "type into textbox \"Passcode\" = <secret:core_passcode>",
+      "status": "ok",
+      "attempts": 1,
+      "duration_ms": 358,
+      "locator": {
+        "strategy": "role_name",
+        "args": {
+          "detail": "textbox \"Passcode\"",
+          "mode": "exact"
+        },
+        "confidence": 0.95,
+        "rank": 0,
+        "fallback": false,
+        "structural": false
+      },
+      "recoveries": [],
+      "expected": "",
+      "observed": "url=http://127.0.0.1:8800/ title='MERIDIAN CORE - Sign On' :: RIVERBEND FEDERAL CU \u00a0|\u00a0 MERIDIAN CORE 4.2 / Operator Sign On / Operator ID / Passcode",
+      "evidence": [],
+      "note": ""
+    },
+    {
+      "index": 3,
+      "step_id": "sign_on",
+      "intent": "sign on to the console",
+      "action": "click button \"Sign On\"",
+      "status": "recovered",
+      "attempts": 1,
+      "duration_ms": 1511,
+      "locator": {
+        "strategy": "role_name",
+        "args": {
+          "detail": "button \"Sign On\"",
+          "mode": "exact"
+        },
+        "confidence": 0.95,
+        "rank": 0,
+        "fallback": false,
+        "structural": false
+      },
+      "recoveries": [
+        {
+          "rule_id": "dismiss_system_notice",
+          "description": "acknowledge an unscheduled system notice and carry on",
+          "at_step": "sign_on",
+          "attempt": 1,
+          "detail": ""
+        }
+      ],
+      "expected": "(URL matches //console/ OR text \"Member Services\" present in any frame)",
+      "observed": "url=http://127.0.0.1:8800/console title='MERIDIAN CORE - Member Services' :: RIVERBEND FEDERAL CU \u00a0|\u00a0 Member Services / Operator: [REDACTED:secret] \u00a0 Sign Off / Member Search / Batch Queue / Reports / Teller Ops / RIVERBEND FEDERAL CU \u00a0|\u00a0 MERIDIAN CORE 4.2 / Member Inquiry / Member Number / Enter th",
+      "evidence": [],
+      "note": ""
+    },
+    {
+      "index": 4,
+      "step_id": "enter_the_member_id",
+      "intent": "enter the member id",
+      "action": "type into textbox \"Member ID\" = <member_id>",
+      "status": "ok",
+      "attempts": 1,
+      "duration_ms": 564,
+      "locator": {
+        "strategy": "role_name",
+        "args": {
+          "detail": "textbox \"Member Number\"",
+          "mode": "exact"
+        },
+        "confidence": 0.8999999999999999,
+        "rank": 0,
+        "fallback": false,
+        "structural": false
+      },
+      "recoveries": [],
+      "expected": "",
+      "observed": "url=http://127.0.0.1:8800/console title='MERIDIAN CORE - Member Services' :: RIVERBEND FEDERAL CU \u00a0|\u00a0 Member Services / Operator: [REDACTED:secret] \u00a0 Sign Off / Member Search / Batch Queue / Reports / Teller Ops / RIVERBEND FEDERAL CU \u00a0|\u00a0 MERIDIAN CORE 4.2 / Member Inquiry / Member Number / Enter th",
+      "evidence": [],
+      "note": ""
+    },
+    {
+      "index": 5,
+      "step_id": "run_the_member_inquiry",
+      "intent": "run the member inquiry",
+      "action": "click button \"Search\"",
+      "status": "ok",
+      "attempts": 1,
+      "duration_ms": 625,
+      "locator": {
+        "strategy": "role_name",
+        "args": {
+          "detail": "button \"Find Member\"",
+          "mode": "exact"
+        },
+        "confidence": 0.95,
+        "rank": 0,
+        "fallback": false,
+        "structural": false
+      },
+      "recoveries": [],
+      "expected": "text \"Member Relationship Summary\" present in any frame",
+      "observed": "url=http://127.0.0.1:8800/console title='MERIDIAN CORE - Member Services' :: RIVERBEND FEDERAL CU \u00a0|\u00a0 Member Services / Operator: [REDACTED:secret] \u00a0 Sign Off / Member Search / Batch Queue / Reports / Teller Ops / RIVERBEND FEDERAL CU \u00a0|\u00a0 MERIDIAN CORE 4.2 / Member Relationship Summary / Member Name",
+      "evidence": [],
+      "note": ""
+    },
+    {
+      "index": 6,
+      "step_id": "read_the_member_name",
+      "intent": "read the member name",
+      "action": "read member_name via labeled_field",
+      "status": "ok",
+      "attempts": 1,
+      "duration_ms": 692,
+      "locator": null,
+      "recoveries": [],
+      "expected": "",
+      "observed": "url=http://127.0.0.1:8800/console title='MERIDIAN CORE - Member Services' :: RIVERBEND FEDERAL CU \u00a0|\u00a0 Member Services / Operator: [REDACTED:secret] \u00a0 Sign Off / Member Search / Batch Queue / Reports / Teller Ops / RIVERBEND FEDERAL CU \u00a0|\u00a0 MERIDIAN CORE 4.2 / Member Relationship Summary / Member Name",
+      "evidence": [],
+      "note": ""
+    },
+    {
+      "index": 7,
+      "step_id": "read_the_savings_share_balance",
+      "intent": "read the savings share balance",
+      "action": "read savings_balance via table_cell",
+      "status": "ok",
+      "attempts": 1,
+      "duration_ms": 703,
+      "locator": null,
+      "recoveries": [],
+      "expected": "",
+      "observed": "url=http://127.0.0.1:8800/console title='MERIDIAN CORE - Member Services' :: RIVERBEND FEDERAL CU \u00a0|\u00a0 Member Services / Operator: [REDACTED:secret] \u00a0 Sign Off / Member Search / Batch Queue / Reports / Teller Ops / RIVERBEND FEDERAL CU \u00a0|\u00a0 MERIDIAN CORE 4.2 / Member Relationship Summary / Member Name",
+      "evidence": [],
+      "note": ""
+    },
+    {
+      "index": 8,
+      "step_id": "read_the_savings_account_number",
+      "intent": "read the savings account number",
+      "action": "read savings_account_number via table_cell",
+      "status": "ok",
+      "attempts": 1,
+      "duration_ms": 684,
+      "locator": null,
+      "recoveries": [],
+      "expected": "",
+      "observed": "url=http://127.0.0.1:8800/console title='MERIDIAN CORE - Member Services' :: RIVERBEND FEDERAL CU \u00a0|\u00a0 Member Services / Operator: [REDACTED:secret] \u00a0 Sign Off / Member Search / Batch Queue / Reports / Teller Ops / RIVERBEND FEDERAL CU \u00a0|\u00a0 MERIDIAN CORE 4.2 / Member Relationship Summary / Member Name",
+      "evidence": [],
+      "note": ""
+    }
+  ],
+  "recoveries": [
+    {
+      "rule_id": "dismiss_system_notice",
+      "description": "acknowledge an unscheduled system notice and carry on",
+      "at_step": "sign_on",
+      "attempt": 1,
+      "detail": ""
+    }
+  ],
+  "drift": [
+    {
+      "kind": "recovery_used",
+      "step_id": "sign_on",
+      "detail": "recovery dismiss_system_notice fired"
+    }
+  ],
+  "evidence_dir": "/home/user/loopp/evidence/replay-cb3b197ffd",
+  "used_llm": false
+}

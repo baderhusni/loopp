@@ -1,0 +1,24 @@
+Read a member's savings balance  ([REDACTED:email])
+  app      : MERIDIAN CORE 4.2 [legacy_web] scope=product
+  purpose  : Looks up a member by ID in the MERIDIAN CORE member inquiry and returns the member name, savings share balance, and savings account number.
+  inputs   : member_id:string
+  outputs  : member_name:string[pii], savings_balance:number[internal], savings_account_number:string[pii]
+  risk     : max=safe approval=draft
+  prologue :
+    - open_app: open the console [navigate to {base_url}/]
+    - enter_operator_id: enter the service operator id [type into textbox "Operator ID" = <secret:core_operator_id>]
+    - enter_passcode: enter the service passcode [type into textbox "Passcode" = <secret:core_passcode>]
+    - sign_on: sign on to the console [click button "Sign On"]
+  steps    :
+     0. enter_the_member_id: enter the member id [type into textbox "Member ID" = <member_id>]
+     1. run_the_member_inquiry: run the member inquiry [click button "Search"]
+        then: text "Member Relationship Summary" present in any frame
+     2. read_the_member_name: read the member name [read member_name via labeled_field]
+     3. read_the_savings_share_balance: read the savings share balance [read savings_balance via table_cell]
+     4. read_the_savings_account_number: read the savings account number [read savings_account_number via table_cell]
+  recovery :
+    - dismiss_system_notice: when text "System Notice" present in any frame
+    - reauthenticate: when text "session has expired" present in any frame
+  outcomes :
+    - MEMBER_NOT_FOUND: when text "No member record found for Member ID" present in any frame
+  checkpoint: text "Member Relationship Summary" present in any frame

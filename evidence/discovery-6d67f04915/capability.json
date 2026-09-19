@@ -1,0 +1,820 @@
+{
+  "schema_version": "1.1",
+  "id": "meridian_core.member_savings_balance",
+  "version": "1.0.0",
+  "name": "Read a member's savings balance",
+  "description": "Looks up a member by ID in the MERIDIAN CORE member inquiry and returns the member name, savings share balance, and savings account number.",
+  "app": {
+    "app_id": "meridian_core",
+    "vendor_product": "MERIDIAN CORE",
+    "product_version": "4.2",
+    "surface": "legacy_web",
+    "entrypoint": "{base_url}/",
+    "scope": "product",
+    "recorded_on_tenant": "northstar-cu"
+  },
+  "inputs": [
+    {
+      "name": "member_id",
+      "type": "string",
+      "description": "member id supplied by the caller",
+      "required": true,
+      "default": null,
+      "pattern": "^\\d{6}$",
+      "enum": null,
+      "minimum": null,
+      "maximum": null,
+      "sensitivity": "pii",
+      "example": "100412"
+    }
+  ],
+  "outputs": [
+    {
+      "name": "member_name",
+      "type": "string",
+      "description": "The member's full name as shown on the relationship summary.",
+      "sensitivity": "pii",
+      "required": true
+    },
+    {
+      "name": "savings_balance",
+      "type": "number",
+      "description": "The balance of the member's SAVINGS share account.",
+      "sensitivity": "internal",
+      "required": true
+    },
+    {
+      "name": "savings_account_number",
+      "type": "string",
+      "description": "The account number of the member's SAVINGS share account.",
+      "sensitivity": "pii",
+      "required": true
+    }
+  ],
+  "preconditions": [
+    {
+      "id": "open_app",
+      "intent": "open the console",
+      "action": {
+        "kind": "navigate",
+        "url_template": "{base_url}/"
+      },
+      "precondition": null,
+      "postcondition": {
+        "kind": "any_of",
+        "conditions": [
+          {
+            "kind": "text_present",
+            "text": "Operator Sign On",
+            "regex": false,
+            "case_sensitive": false,
+            "frame_path": []
+          },
+          {
+            "kind": "text_present",
+            "text": "Member Services",
+            "regex": false,
+            "case_sensitive": false,
+            "frame_path": []
+          }
+        ]
+      },
+      "optional": false,
+      "risk": "safe",
+      "timeout_ms": 10000,
+      "settle_ms": 150,
+      "on_error": {
+        "retries": 0,
+        "backoff_ms": 500,
+        "on_exhausted": "fail"
+      }
+    },
+    {
+      "id": "enter_operator_id",
+      "intent": "enter the service operator id",
+      "action": {
+        "kind": "fill",
+        "target": {
+          "role": "textbox",
+          "name": "Operator ID",
+          "frame_path": [],
+          "candidates": [
+            {
+              "strategy": "role_name",
+              "args": {
+                "role": "textbox",
+                "name": "Operator ID",
+                "frame_path": []
+              },
+              "confidence": 0.95,
+              "note": "accessible role and name"
+            },
+            {
+              "strategy": "label_adjacent",
+              "args": {
+                "label": "Operator ID",
+                "role": "textbox",
+                "frame_path": []
+              },
+              "confidence": 0.85,
+              "note": "caption rendered beside the control"
+            }
+          ],
+          "description": ""
+        },
+        "value": {
+          "kind": "secret",
+          "secret": "core_operator_id"
+        },
+        "clear_first": true
+      },
+      "precondition": {
+        "kind": "text_present",
+        "text": "Operator Sign On",
+        "regex": false,
+        "case_sensitive": false,
+        "frame_path": []
+      },
+      "postcondition": null,
+      "optional": false,
+      "risk": "safe",
+      "timeout_ms": 10000,
+      "settle_ms": 150,
+      "on_error": {
+        "retries": 0,
+        "backoff_ms": 500,
+        "on_exhausted": "fail"
+      }
+    },
+    {
+      "id": "enter_passcode",
+      "intent": "enter the service passcode",
+      "action": {
+        "kind": "fill",
+        "target": {
+          "role": "textbox",
+          "name": "Passcode",
+          "frame_path": [],
+          "candidates": [
+            {
+              "strategy": "role_name",
+              "args": {
+                "role": "textbox",
+                "name": "Passcode",
+                "frame_path": []
+              },
+              "confidence": 0.95,
+              "note": "accessible role and name"
+            },
+            {
+              "strategy": "label_adjacent",
+              "args": {
+                "label": "Passcode",
+                "role": "textbox",
+                "frame_path": []
+              },
+              "confidence": 0.85,
+              "note": "caption rendered beside the control"
+            }
+          ],
+          "description": ""
+        },
+        "value": {
+          "kind": "secret",
+          "secret": "core_passcode"
+        },
+        "clear_first": true
+      },
+      "precondition": {
+        "kind": "text_present",
+        "text": "Operator Sign On",
+        "regex": false,
+        "case_sensitive": false,
+        "frame_path": []
+      },
+      "postcondition": null,
+      "optional": false,
+      "risk": "safe",
+      "timeout_ms": 10000,
+      "settle_ms": 150,
+      "on_error": {
+        "retries": 0,
+        "backoff_ms": 500,
+        "on_exhausted": "fail"
+      }
+    },
+    {
+      "id": "sign_on",
+      "intent": "sign on to the console",
+      "action": {
+        "kind": "click",
+        "target": {
+          "role": "button",
+          "name": "Sign On",
+          "frame_path": [],
+          "candidates": [
+            {
+              "strategy": "role_name",
+              "args": {
+                "role": "button",
+                "name": "Sign On",
+                "frame_path": []
+              },
+              "confidence": 0.95,
+              "note": "accessible role and name"
+            },
+            {
+              "strategy": "label_adjacent",
+              "args": {
+                "label": "Sign On",
+                "role": "button",
+                "frame_path": []
+              },
+              "confidence": 0.85,
+              "note": "caption rendered beside the control"
+            }
+          ],
+          "description": ""
+        }
+      },
+      "precondition": {
+        "kind": "text_present",
+        "text": "Operator Sign On",
+        "regex": false,
+        "case_sensitive": false,
+        "frame_path": []
+      },
+      "postcondition": {
+        "kind": "any_of",
+        "conditions": [
+          {
+            "kind": "url_matches",
+            "pattern": "/console"
+          },
+          {
+            "kind": "text_present",
+            "text": "Member Services",
+            "regex": false,
+            "case_sensitive": false,
+            "frame_path": []
+          }
+        ]
+      },
+      "optional": false,
+      "risk": "safe",
+      "timeout_ms": 10000,
+      "settle_ms": 150,
+      "on_error": {
+        "retries": 1,
+        "backoff_ms": 750,
+        "on_exhausted": "fail"
+      }
+    }
+  ],
+  "steps": [
+    {
+      "id": "enter_the_member_id",
+      "intent": "enter the member id",
+      "action": {
+        "kind": "fill",
+        "target": {
+          "role": "textbox",
+          "name": "Member ID",
+          "frame_path": [
+            "content"
+          ],
+          "candidates": [
+            {
+              "strategy": "role_name",
+              "args": {
+                "role": "textbox",
+                "name": "Member ID",
+                "frame_path": [
+                  "content"
+                ]
+              },
+              "confidence": 0.[REDACTED:card_number],
+              "note": "name recovered from table_adjacent; browser AX tree reports no name"
+            },
+            {
+              "strategy": "label_adjacent",
+              "args": {
+                "label": "Member ID",
+                "role": "textbox",
+                "frame_path": [
+                  "content"
+                ]
+              },
+              "confidence": 0.85,
+              "note": "field identified by the caption rendered beside it"
+            },
+            {
+              "strategy": "field_name",
+              "args": {
+                "field_name": "f_mid",
+                "role": "textbox",
+                "frame_path": [
+                  "content"
+                ]
+              },
+              "confidence": 0.7,
+              "note": "form control name= attribute; survives restyling, breaks on a backend rewrite"
+            },
+            {
+              "strategy": "css",
+              "args": {
+                "selector": "form > table > tbody > tr > td:nth-of-type(2) > input[name=\"f_mid\"]",
+                "frame_path": [
+                  "content"
+                ]
+              },
+              "confidence": 0.25,
+              "note": "structural path; last resort (element id looks machine-generated, excluded)"
+            }
+          ],
+          "description": "textbox named 'Member ID'"
+        },
+        "value": {
+          "kind": "param",
+          "param": "member_id"
+        },
+        "clear_first": true
+      },
+      "precondition": null,
+      "postcondition": null,
+      "optional": false,
+      "risk": "safe",
+      "timeout_ms": 10000,
+      "settle_ms": 150,
+      "on_error": {
+        "retries": 1,
+        "backoff_ms": 600,
+        "on_exhausted": "fail"
+      }
+    },
+    {
+      "id": "run_the_member_inquiry",
+      "intent": "run the member inquiry",
+      "action": {
+        "kind": "click",
+        "target": {
+          "role": "button",
+          "name": "Search",
+          "frame_path": [
+            "content"
+          ],
+          "candidates": [
+            {
+              "strategy": "role_name",
+              "args": {
+                "role": "button",
+                "name": "Search",
+                "frame_path": [
+                  "content"
+                ]
+              },
+              "confidence": 0.95,
+              "note": "name confirmed by the browser accessibility tree"
+            },
+            {
+              "strategy": "field_name",
+              "args": {
+                "field_name": "btnSrch",
+                "role": "button",
+                "frame_path": [
+                  "content"
+                ]
+              },
+              "confidence": 0.7,
+              "note": "form control name= attribute; survives restyling, breaks on a backend rewrite"
+            },
+            {
+              "strategy": "css",
+              "args": {
+                "selector": "form > table > tbody > tr > td:nth-of-type(3) > input[name=\"btnSrch\"]",
+                "frame_path": [
+                  "content"
+                ]
+              },
+              "confidence": 0.25,
+              "note": "structural path; last resort"
+            }
+          ],
+          "description": "button named 'Search'"
+        }
+      },
+      "precondition": null,
+      "postcondition": {
+        "kind": "text_present",
+        "text": "Member Relationship Summary",
+        "regex": false,
+        "case_sensitive": false,
+        "frame_path": []
+      },
+      "optional": false,
+      "risk": "safe",
+      "timeout_ms": 10000,
+      "settle_ms": 150,
+      "on_error": {
+        "retries": 1,
+        "backoff_ms": 600,
+        "on_exhausted": "fail"
+      }
+    },
+    {
+      "id": "read_the_member_name",
+      "intent": "read the member name",
+      "action": {
+        "kind": "read",
+        "extract": {
+          "output": "member_name",
+          "source": "labeled_field",
+          "control": null,
+          "label": "Member Name",
+          "row_anchor": null,
+          "column_header": null,
+          "table_hint": null,
+          "pattern": null,
+          "group": 1,
+          "transform": "trim",
+          "frame_path": [],
+          "required": true
+        }
+      },
+      "precondition": null,
+      "postcondition": null,
+      "optional": false,
+      "risk": "safe",
+      "timeout_ms": 10000,
+      "settle_ms": 150,
+      "on_error": {
+        "retries": 1,
+        "backoff_ms": 600,
+        "on_exhausted": "fail"
+      }
+    },
+    {
+      "id": "read_the_savings_share_balance",
+      "intent": "read the savings share balance",
+      "action": {
+        "kind": "read",
+        "extract": {
+          "output": "savings_balance",
+          "source": "table_cell",
+          "control": null,
+          "label": null,
+          "row_anchor": "SAVINGS",
+          "column_header": "Balance",
+          "table_hint": null,
+          "pattern": null,
+          "group": 1,
+          "transform": "number",
+          "frame_path": [],
+          "required": true
+        }
+      },
+      "precondition": null,
+      "postcondition": null,
+      "optional": false,
+      "risk": "safe",
+      "timeout_ms": 10000,
+      "settle_ms": 150,
+      "on_error": {
+        "retries": 1,
+        "backoff_ms": 600,
+        "on_exhausted": "fail"
+      }
+    },
+    {
+      "id": "read_the_savings_account_number",
+      "intent": "read the savings account number",
+      "action": {
+        "kind": "read",
+        "extract": {
+          "output": "savings_account_number",
+          "source": "table_cell",
+          "control": null,
+          "label": null,
+          "row_anchor": "SAVINGS",
+          "column_header": "Account Number",
+          "table_hint": null,
+          "pattern": null,
+          "group": 1,
+          "transform": "trim",
+          "frame_path": [],
+          "required": true
+        }
+      },
+      "precondition": null,
+      "postcondition": null,
+      "optional": false,
+      "risk": "safe",
+      "timeout_ms": 10000,
+      "settle_ms": 150,
+      "on_error": {
+        "retries": 1,
+        "backoff_ms": 600,
+        "on_exhausted": "fail"
+      }
+    }
+  ],
+  "recovery": [
+    {
+      "id": "dismiss_system_notice",
+      "description": "acknowledge an unscheduled system notice and carry on",
+      "when": {
+        "kind": "text_present",
+        "text": "System Notice",
+        "regex": false,
+        "case_sensitive": false,
+        "frame_path": []
+      },
+      "do": [
+        {
+          "kind": "click",
+          "target": {
+            "role": "button",
+            "name": "Acknowledge",
+            "frame_path": [],
+            "candidates": [
+              {
+                "strategy": "role_name",
+                "args": {
+                  "role": "button",
+                  "name": "Acknowledge",
+                  "frame_path": []
+                },
+                "confidence": 0.95,
+                "note": "accessible role and name"
+              },
+              {
+                "strategy": "label_adjacent",
+                "args": {
+                  "label": "Acknowledge",
+                  "role": "button",
+                  "frame_path": []
+                },
+                "confidence": 0.85,
+                "note": "caption rendered beside the control"
+              }
+            ],
+            "description": ""
+          }
+        }
+      ],
+      "max_uses": 3,
+      "resume_at_step": null
+    },
+    {
+      "id": "reauthenticate",
+      "description": "sign back on after the core drops the session mid-flow",
+      "when": {
+        "kind": "text_present",
+        "text": "session has expired",
+        "regex": false,
+        "case_sensitive": false,
+        "frame_path": []
+      },
+      "do": [
+        {
+          "kind": "fill",
+          "target": {
+            "role": "textbox",
+            "name": "Operator ID",
+            "frame_path": [],
+            "candidates": [
+              {
+                "strategy": "role_name",
+                "args": {
+                  "role": "textbox",
+                  "name": "Operator ID",
+                  "frame_path": []
+                },
+                "confidence": 0.95,
+                "note": "accessible role and name"
+              },
+              {
+                "strategy": "label_adjacent",
+                "args": {
+                  "label": "Operator ID",
+                  "role": "textbox",
+                  "frame_path": []
+                },
+                "confidence": 0.85,
+                "note": "caption rendered beside the control"
+              }
+            ],
+            "description": ""
+          },
+          "value": {
+            "kind": "secret",
+            "secret": "core_operator_id"
+          },
+          "clear_first": true
+        },
+        {
+          "kind": "fill",
+          "target": {
+            "role": "textbox",
+            "name": "Passcode",
+            "frame_path": [],
+            "candidates": [
+              {
+                "strategy": "role_name",
+                "args": {
+                  "role": "textbox",
+                  "name": "Passcode",
+                  "frame_path": []
+                },
+                "confidence": 0.95,
+                "note": "accessible role and name"
+              },
+              {
+                "strategy": "label_adjacent",
+                "args": {
+                  "label": "Passcode",
+                  "role": "textbox",
+                  "frame_path": []
+                },
+                "confidence": 0.85,
+                "note": "caption rendered beside the control"
+              }
+            ],
+            "description": ""
+          },
+          "value": {
+            "kind": "secret",
+            "secret": "core_passcode"
+          },
+          "clear_first": true
+        },
+        {
+          "kind": "click",
+          "target": {
+            "role": "button",
+            "name": "Sign On",
+            "frame_path": [],
+            "candidates": [
+              {
+                "strategy": "role_name",
+                "args": {
+                  "role": "button",
+                  "name": "Sign On",
+                  "frame_path": []
+                },
+                "confidence": 0.95,
+                "note": "accessible role and name"
+              },
+              {
+                "strategy": "label_adjacent",
+                "args": {
+                  "label": "Sign On",
+                  "role": "button",
+                  "frame_path": []
+                },
+                "confidence": 0.85,
+                "note": "caption rendered beside the control"
+              }
+            ],
+            "description": ""
+          }
+        }
+      ],
+      "max_uses": 1,
+      "resume_at_step": "__first_step__"
+    }
+  ],
+  "environment": [
+    {
+      "id": "app_error",
+      "description": "the core returned an application error",
+      "when": {
+        "kind": "all_of",
+        "conditions": [
+          {
+            "kind": "text_present",
+            "text": "Application Error",
+            "regex": false,
+            "case_sensitive": false,
+            "frame_path": []
+          },
+          {
+            "kind": "not",
+            "condition": {
+              "kind": "text_present",
+              "text": "SEC-0041",
+              "regex": false,
+              "case_sensitive": false,
+              "frame_path": []
+            }
+          }
+        ]
+      },
+      "failure_class": "app_error",
+      "remediation": "transient core error; retry the capability, and raise a ticket with the reference on screen if it persists"
+    },
+    {
+      "id": "permission_denied",
+      "description": "this operator is not authorized to service the record",
+      "when": {
+        "kind": "any_of",
+        "conditions": [
+          {
+            "kind": "text_present",
+            "text": "SEC-0041",
+            "regex": false,
+            "case_sensitive": false,
+            "frame_path": []
+          },
+          {
+            "kind": "text_present",
+            "text": "not authorized to service this member",
+            "regex": false,
+            "case_sensitive": false,
+            "frame_path": []
+          }
+        ]
+      },
+      "failure_class": "permission_denied",
+      "remediation": "the record is under a privacy hold; a supervisor has to service it"
+    },
+    {
+      "id": "session_lost",
+      "description": "the console session expired and could not be re-established",
+      "when": {
+        "kind": "text_present",
+        "text": "session has expired",
+        "regex": false,
+        "case_sensitive": false,
+        "frame_path": []
+      },
+      "failure_class": "session_lost",
+      "remediation": "re-authentication already ran and did not take; check the service operator credentials"
+    }
+  ],
+  "outcomes": [
+    {
+      "code": "MEMBER_NOT_FOUND",
+      "title": "No member record for the given member ID",
+      "when": {
+        "kind": "text_present",
+        "text": "No member record found for Member ID",
+        "regex": false,
+        "case_sensitive": false,
+        "frame_path": []
+      },
+      "terminal": true,
+      "message_from": {
+        "output": "_message",
+        "source": "page_regex",
+        "control": null,
+        "label": null,
+        "row_anchor": null,
+        "column_header": null,
+        "table_hint": null,
+        "pattern": "(No member record found for Member ID[^\\n]*)",
+        "group": 1,
+        "transform": "none",
+        "frame_path": [],
+        "required": true
+      }
+    }
+  ],
+  "checkpoint": {
+    "kind": "text_present",
+    "text": "Member Relationship Summary",
+    "regex": false,
+    "case_sensitive": false,
+    "frame_path": []
+  },
+  "risk": {
+    "max_tier": "safe",
+    "requires_approval_to_run": false,
+    "notes": ""
+  },
+  "approval": {
+    "state": "draft",
+    "approved_by": null,
+    "approved_at": null,
+    "note": "recorded by a discovery run; a human must review the steps, the declared sensitivity of each output, and the risk tier before unattended use"
+  },
+  "provenance": {
+    "recorded_at": "2026-09-19T19:13:58.788246Z",
+    "recorded_by": "claude-opus-5 (cli)",
+    "discovery_run_id": "6d67f04915",
+    "discovery_goal": "Look up member 100412 in the member inquiry screen and return their name, their savings share balance, and the savings account number.",
+    "evidence_path": "/home/user/loopp/evidence/discovery-6d67f04915",
+    "steps_proposed": 6,
+    "steps_recorded": 5
+  },
+  "stats": {
+    "replays": 0,
+    "successes": 0,
+    "business_outcomes": 0,
+    "failures": 0,
+    "last_replay_at": null
+  },
+  "tags": [
+    "discovered"
+  ]
+}

@@ -1,0 +1,50 @@
+{
+  "status": "failed",
+  "capability_id": "meridian_core.member_savings_balance",
+  "capability_version": "1.0.0",
+  "run_id": "73152f62c3",
+  "tenant_id": "northstar-cu",
+  "started_at": "2026-09-19T19:14:28.505751Z",
+  "finished_at": "2026-09-19T19:14:29.336300Z",
+  "duration_ms": 830,
+  "outputs": {},
+  "outcome": null,
+  "failure": {
+    "failure_class": "app_error",
+    "message": "the core returned an application error",
+    "step_index": 0,
+    "step_id": "open_app",
+    "expected": "",
+    "observed": "url=http://127.0.0.1:8799/ title='MERIDIAN CORE - Error' :: NORTHSTAR CREDIT UNION \u00a0|\u00a0 MERIDIAN CORE 4.2 / Application Error SYS-0500 / An unexpected condition occurred while processing the request. Contact the service desk with this reference.",
+    "remediation": "transient core error; retry the capability, and raise a ticket with the reference on screen if it persists",
+    "evidence": [
+      "screens/005-FAIL-open_app.png",
+      "dom/005-FAIL-open_app.html"
+    ]
+  },
+  "escalation": null,
+  "steps": [
+    {
+      "index": 0,
+      "step_id": "open_app",
+      "intent": "open the console",
+      "action": "navigate to {base_url}/",
+      "status": "failed",
+      "attempts": 1,
+      "duration_ms": 0,
+      "locator": null,
+      "recoveries": [],
+      "expected": "",
+      "observed": "url=http://127.0.0.1:8799/ title='MERIDIAN CORE - Error' :: NORTHSTAR CREDIT UNION \u00a0|\u00a0 MERIDIAN CORE 4.2 / Application Error SYS-0500 / An unexpected condition occurred while processing the request. Contact the service desk with this reference.",
+      "evidence": [
+        "screens/005-FAIL-open_app.png",
+        "dom/005-FAIL-open_app.html"
+      ],
+      "note": ""
+    }
+  ],
+  "recoveries": [],
+  "drift": [],
+  "evidence_dir": "/home/user/loopp/evidence/replay-73152f62c3",
+  "used_llm": false
+}

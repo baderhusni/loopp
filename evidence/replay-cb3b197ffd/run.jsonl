@@ -1,0 +1,27 @@
+{"seq": 1, "ts": "2026-09-19T19:16:20.756+00:00", "elapsed_ms": 690, "type": "replay_start", "capability": "[REDACTED:email]", "tenant": "riverbend-fcu", "base_url": "http://127.0.0.1:8800", "params": {"member_id": "[REDACTED:pii:\u20260416]"}, "approval": "approved", "overlay": true}
+{"seq": 2, "ts": "2026-09-19T19:16:20.821+00:00", "elapsed_ms": 755, "type": "policy_check", "step": "open_app", "action": "navigate", "control": "", "verdict": "allow", "risk": "safe", "reason": ""}
+{"seq": 3, "ts": "2026-09-19T19:16:20.844+00:00", "elapsed_ms": 777, "type": "action", "step": "open_app", "action": "navigate to {base_url}/"}
+{"seq": 4, "ts": "2026-09-19T19:16:21.702+00:00", "elapsed_ms": 1636, "type": "policy_check", "step": "enter_operator_id", "action": "fill", "control": "Operator ID", "verdict": "allow", "risk": "safe", "reason": ""}
+{"seq": 5, "ts": "2026-09-19T19:16:21.740+00:00", "elapsed_ms": 1674, "type": "action", "step": "enter_operator_id", "action": "type into textbox \"Operator ID\" = <secret:core_operator_id>"}
+{"seq": 6, "ts": "2026-09-19T19:16:22.095+00:00", "elapsed_ms": 2029, "type": "policy_check", "step": "enter_passcode", "action": "fill", "control": "Passcode", "verdict": "allow", "risk": "safe", "reason": ""}
+{"seq": 7, "ts": "2026-09-19T19:16:22.105+00:00", "elapsed_ms": 2038, "type": "action", "step": "enter_passcode", "action": "type into textbox \"Passcode\" = <secret:core_passcode>"}
+{"seq": 8, "ts": "2026-09-19T19:16:22.434+00:00", "elapsed_ms": 2368, "type": "policy_check", "step": "sign_on", "action": "click", "control": "Sign On", "verdict": "allow", "risk": "caution", "reason": ""}
+{"seq": 9, "ts": "2026-09-19T19:16:22.486+00:00", "elapsed_ms": 2420, "type": "action", "step": "sign_on", "action": "click button \"Sign On\""}
+{"seq": 10, "ts": "2026-09-19T19:16:23.273+00:00", "elapsed_ms": 3207, "type": "recovery_start", "rule": "dismiss_system_notice", "step": "sign_on", "when": "text \"System Notice\" present in any frame"}
+{"seq": 11, "ts": "2026-09-19T19:16:23.497+00:00", "elapsed_ms": 3430, "type": "action", "step": "recovery:dismiss_system_notice", "action": "click button \"Acknowledge\""}
+{"seq": 12, "ts": "2026-09-19T19:16:23.830+00:00", "elapsed_ms": 3764, "type": "recovery_no_rerun", "step": "sign_on", "rule": "dismiss_system_notice", "reason": "step had already taken effect when the interruption appeared"}
+{"seq": 13, "ts": "2026-09-19T19:16:24.081+00:00", "elapsed_ms": 4015, "type": "policy_check", "step": "enter_the_member_id", "action": "fill", "control": "Member Number", "verdict": "allow", "risk": "safe", "reason": ""}
+{"seq": 14, "ts": "2026-09-19T19:16:24.108+00:00", "elapsed_ms": 4041, "type": "action", "step": "enter_the_member_id", "action": "type into textbox \"Member ID\" = <member_id>"}
+{"seq": 15, "ts": "2026-09-19T19:16:24.648+00:00", "elapsed_ms": 4582, "type": "policy_check", "step": "run_the_member_inquiry", "action": "click", "control": "Find Member", "verdict": "allow", "risk": "caution", "reason": ""}
+{"seq": 16, "ts": "2026-09-19T19:16:24.688+00:00", "elapsed_ms": 4621, "type": "action", "step": "run_the_member_inquiry", "action": "click button \"Search\""}
+{"seq": 17, "ts": "2026-09-19T19:16:25.385+00:00", "elapsed_ms": 5318, "type": "policy_check", "step": "read_the_member_name", "action": "read", "control": "", "verdict": "allow", "risk": "safe", "reason": ""}
+{"seq": 18, "ts": "2026-09-19T19:16:25.385+00:00", "elapsed_ms": 5318, "type": "action", "step": "read_the_member_name", "action": "read member_name via labeled_field"}
+{"seq": 19, "ts": "2026-09-19T19:16:25.713+00:00", "elapsed_ms": 5646, "type": "extracted", "step": "read_the_member_name", "output": "member_name", "value": "[REDACTED:pii:\u2026n Li]"}
+{"seq": 20, "ts": "2026-09-19T19:16:26.082+00:00", "elapsed_ms": 6015, "type": "policy_check", "step": "read_the_savings_share_balance", "action": "read", "control": "", "verdict": "allow", "risk": "safe", "reason": ""}
+{"seq": 21, "ts": "2026-09-19T19:16:26.082+00:00", "elapsed_ms": 6015, "type": "action", "step": "read_the_savings_share_balance", "action": "read savings_balance via table_cell"}
+{"seq": 22, "ts": "2026-09-19T19:16:26.417+00:00", "elapsed_ms": 6350, "type": "extracted", "step": "read_the_savings_share_balance", "output": "savings_balance", "value": 8750.25}
+{"seq": 23, "ts": "2026-09-19T19:16:26.767+00:00", "elapsed_ms": 6700, "type": "policy_check", "step": "read_the_savings_account_number", "action": "read", "control": "", "verdict": "allow", "risk": "safe", "reason": ""}
+{"seq": 24, "ts": "2026-09-19T19:16:26.767+00:00", "elapsed_ms": 6700, "type": "action", "step": "read_the_savings_account_number", "action": "read savings_account_number via table_cell"}
+{"seq": 25, "ts": "2026-09-19T19:16:27.101+00:00", "elapsed_ms": 7035, "type": "extracted", "step": "read_the_savings_account_number", "output": "savings_account_number", "value": "[REDACTED:pii:\u20266-01]"}
+{"seq": 26, "ts": "2026-09-19T19:16:27.283+00:00", "elapsed_ms": 7217, "type": "checkpoint_met", "condition": "text \"Member Relationship Summary\" present in any frame"}
+{"seq": 27, "ts": "2026-09-19T19:16:27.283+00:00", "elapsed_ms": 7217, "type": "replay_end", "status": "success", "headline": "SUCCESS  meridian_core.member_savings_balance  (6529 ms)", "duration_ms": 6529}

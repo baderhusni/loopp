@@ -1,0 +1,73 @@
+# Scribe guardrail policy.
+#
+# This file is the whole allowlist. The agent loop and the replay engine both
+# run every action through it -- there is no path to the surface that skips it,
+# and the model cannot talk its way around it because the check happens after
+# the model has spoken and before anything is clicked.
+#
+# Risk is decided HERE, at act time, from what the control is called on screen.
+# The risk tier recorded in an artifact is advisory (it is there for reviewers);
+# it is never what the gate consults. An artifact therefore cannot be edited to
+# downgrade its own risk and sail through.
+
+version: 1
+
+defaults:
+  max_steps: 24                     # discovery: hard stop on the observe/decide/act loop
+  max_runtime_seconds: 240
+  # A freshly recorded capability is a draft. Draft capabilities do not run
+  # unattended; `--allow-draft` is an explicit, logged override for development.
+  unattended_replay_requires_approval: true
+  screenshot_policy: on_failure     # always | on_failure | never
+
+apps:
+  meridian_core:
+    allowed_origins:
+      - "http://127.0.0.1:8799"     # northstar-cu fixture
+      - "http://127.0.0.1:8800"     # riverbend-fcu fixture
+      - "http://localhost:8799"
+      - "http://localhost:8800"
+    allowed_paths:
+      - "^/$"
+      - "^/signon$"
+      - "^/signoff$"
+      - "^/console$"
+      - "^/frame/(banner|nav)$"
+      - "^/members(/.*)?$"
+      - "^/stub/.*$"
+    denied_paths:
+      - "^/__.*"                    # the fixture's fault-injection control plane
+    allowed_actions: [navigate, click, fill, select, press, wait_for, read]
+
+    risk:
+      # Matched case-insensitively against the control's accessible name -- i.e.
+      # against what a person reads on the button, which is the same thing the
+      # institution's change-control board would read.
+      irreversible_controls:
+        - "Confirm & Open Account"
+        - "Post Transaction"
+        - "Close Account"
+        - "Delete"
+        - "Submit Wire"
+        - "Release Funds"
+      caution_controls:
+        - "Continue"
+        - "Sign Off"
+        - "Acknowledge"
+      # block            -- never, full stop
+      # require_approval -- pause and route to a human (the default)
+      # allow            -- proceed, still logged and flagged
+      on_irreversible: require_approval
+      on_caution: allow
+
+    secrets:
+      # Only the NAME is ever persisted. Values are resolved at act time from
+      # the environment and registered with the redactor on the way through.
+      core_operator_id: "env:MERIDIAN_OPERATOR_ID"
+      core_passcode: "env:MERIDIAN_PASSCODE"
+
+redaction:
+  enabled: true
+  # Extra patterns on top of the built-in PII set (account numbers, SSN, card,
+  # routing, email, phone).
+  extra_patterns: []

@@ -1,0 +1,3 @@
+{"seq": 1, "ts": "2026-09-19T19:14:14.556+00:00", "elapsed_ms": 695, "type": "replay_start", "capability": "[REDACTED:email]", "tenant": "northstar-cu", "base_url": "http://127.0.0.1:8799", "params": {"member_id": "[REDACTED:pii:\u20260413]"}, "approval": "draft", "overlay": false}
+{"seq": 2, "ts": "2026-09-19T19:14:14.557+00:00", "elapsed_ms": 696, "type": "rejected", "failure_class": "policy_denied", "message": "capability is draft; unattended replay requires an approved capability"}
+{"seq": 3, "ts": "2026-09-19T19:14:14.557+00:00", "elapsed_ms": 696, "type": "replay_end", "status": "rejected", "headline": "REJECTED  policy_denied: capability is draft; unattended replay requires an approved capability", "duration_ms": 0}

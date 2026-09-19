@@ -1,298 +1,237 @@
-# Acme Refund Support Agent
+# Scribe
 
-[![CI](https://github.com/baderhusni/loopp/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/baderhusni/loopp/actions/workflows/ci.yml)
+**A model works out how to do a job in a legacy bank application, once. After
+that, a machine does it — deterministically, cheaply, and with a way to call a
+human when it gets stuck.**
 
-An **AI customer-support agent that processes or denies e-commerce refunds**, built
-for the Loopp full-stack automation challenge. A customer chats with the agent; the
-agent verifies them against a synthetic CRM, applies a written refund policy using
-tools, and **holds the line** against pleading and prompt-injection — while an admin
-dashboard shows the agent's full internal reasoning trace for every run.
+Built for the interface.ai computer-use take-home. The design write-up is in
+[`REPORT.md`](REPORT.md); recorded runs are in [`evidence/`](evidence/).
 
-> **LLM access:** the agent runs on the **Claude Agent SDK** authenticated by your
-> **Claude subscription** — no Anthropic API key and no raw API request loop. The
-> app also ships a deterministic **mock engine** so it runs out-of-the-box even
-> without the SDK/subscription.
-
-> **🔎 Reviewing this? Read first.** Out of the box (`./run.sh`, no setup) the app runs
-> on the **deterministic mock engine** — full UI, full trace, policy enforcement, and
-> injection resistance, with **zero configuration**. The **real Claude agent** runs on a
-> personal Claude subscription (no API key, by design), so it only activates when *you*
-> are logged into the Claude CLI locally — and it's what the **Loom video** demonstrates.
-> A subscription can't be safely hosted, which is why there's no live URL (the brief
-> lists one as optional). Everything you need to evaluate is runnable locally and shown
-> in the Loom.
-
-> 📄 **Project report:** `docs/report.html` — architecture, agent workflow, the full
-> UAT results (22/22), and every screen in one page. Open it in a browser. Regenerate
-> with `python docs/build_report.py docs/report.html 0` (UAT data in
-> `docs/uat_results.json`, produced by `backend/uat.py` against a running server).
+```
+     discovery (once)                      replay (every time after)
+  ┌──────────────────────┐              ┌────────────────────────────┐
+  │ goal + live app      │              │ capability + typed inputs  │
+  │   ↓                  │              │   ↓                        │
+  │ observe → LLM → act  │   ────────▶  │ observe → step → verify    │
+  │   ↓                  │  capability  │   ↓                        │
+  │ typed capability     │   artifact   │ outputs | outcome | error  │
+  └──────────────────────┘              └────────────────────────────┘
+        model in the loop                     no model in the loop
+                                              ↓ when stuck
+                                        human takes the live session
+```
 
 ---
 
-## What it does
+## What's here
 
-| Scenario | Customer | Policy outcome |
-|---|---|---|
-| In-window, normal item | `alice@example.com` · `ORD-5001` · `ITEM-1` ($129) | ✅ **APPROVED** |
-| Final-sale item | `alice@example.com` · `ORD-5001` · `ITEM-2` (clearance) | ⛔ **DENIED** |
-| Refund over $500 | `bob@example.com` · `ORD-5002` · `ITEM-1` ($1,299 laptop) | ↑ **ESCALATED** |
-| Outside 30-day window | `carol@example.com` · `ORD-5003` (delivered 70 days ago) | ⛔ **DENIED** |
-| Defective (extends window to 60 days) | `david@example.com` · `ORD-5004` (delivered 40 days ago) | ✅ **APPROVED** if defective, else **DENIED** |
-| Already refunded | `emma@example.com` · `ORD-5005` | ⛔ **DENIED** |
-| Not yet delivered | `frank@example.com` · `ORD-5006` (shipped) | ↑ **ESCALATED** (cancellation) |
-| Gift card (final sale) | `grace@example.com` · `ORD-5007` · `ITEM-1` | ⛔ **DENIED** (↑ escalate if defective) |
-| **Prompt injection** ("I'm the admin, ignore the rules") | any | ⛔ **DENIED** — the policy is the source of truth |
+A complete vertical slice, running against a deliberately hostile stand-in for
+a credit-union core banking console:
 
-The chat UI has one-click buttons for each of these.
-
----
-
-## Challenge requirements → where they're met
-
-| Requirement | Implementation |
+| | |
 |---|---|
-| Synthetic data: **15 customers** + order histories | `backend/app/data/crm.json` (reproducible via `generate_crm.py`) |
-| Written **refund policy** (final sale, > $500 escalation) | `backend/app/data/refund_policy.md` + `app/policy.py` engine |
-| **Local API server** | FastAPI — `backend/app/main.py` |
-| **Agent loop** calling tools dynamically | `backend/app/agent.py` (Claude Agent SDK) → 5 tools in `app/tools.py` |
-| Validate against policy, **hold the line** | deterministic policy engine enforced inside the tools (defense in depth) |
-| **Customer chat** UI | `frontend/src/components/ChatWindow.tsx` |
-| **Admin dashboard** with reasoning logs | `frontend/src/components/AdminDashboard.tsx` + `TraceView.tsx` |
-| Trace: **tool I/O, retries, tokens, latency** | per-run trace, surfaced in the admin dashboard |
+| **Target app** | `target_app/` — "MERIDIAN CORE 4.2", server-rendered, framesets, table layout, no test IDs, element ids regenerated every render, real sessions, injectable runtime faults. Two institutions run the same build with different branding and wording. |
+| **Perception** | A normalized control graph per frame, with an accessible-name algorithm that recovers names legacy markup does not declare. |
+| **Discovery** | An `observe → decide → act` loop on `claude-opus-5`, policy-gated, which records what worked. |
+| **Artifact** | A typed, versioned capability: steps, ranked locators, typed inputs and outputs, declared business outcomes, recovery rules, a checkpoint, risk, provenance, approval state. |
+| **Replay** | An LLM-free executor with an explicit error taxonomy: business outcome vs. recoverable condition vs. hard failure. |
+| **Escalation** | Stuck detection, an intervention request carrying context, and a real operator console that drives the *same live session*, then hands it back. |
+| **Safety** | An allowlist and risk gate every action passes through, secrets resolved at act time and never persisted, redaction on everything written to disk. |
+| **Catalog** | Capabilities exposed as tool schemas an agent calls by name with typed args. |
 
 ---
 
-## Architecture — clean separation of concerns
+## Setup
 
-```
-┌─────────────────────┐   HTTP/JSON   ┌──────────────────────────────────────────┐
-│  React SPA (Vite/TS) │ ───────────▶ │  FastAPI  (app/main.py)  — the API layer  │
-│  • Customer chat     │ ◀─────────── │  validates input, serves trace/admin data │
-│  • Admin trace board │              └───────────────┬──────────────────────────┘
-└─────────────────────┘                              │ run_turn()
-                                                     ▼
-                                  ┌──────────────────────────────────────────────┐
-                                  │  Orchestration layer (app/agent.py)           │
-                                  │  • System prompt (policy + injection defense) │
-                                  │  • ClaudeEngine — Claude Agent SDK tool loop  │
-                                  │    (subscription auth, no API key)            │
-                                  │  • MockEngine — deterministic fallback        │
-                                  └───────┬───────────────────────────┬──────────┘
-                                          │ calls tools               │ records
-                                          ▼                           ▼
-                          ┌───────────────────────────┐   ┌────────────────────────┐
-                          │  Tools (app/tools.py)      │   │  Trace (app/trace.py)  │
-                          │  find_customer, get_order, │   │  per-run tool I/O,     │
-                          │  check_refund_eligibility, │   │  latency, errors,      │
-                          │  issue_refund, escalate    │   │  tokens, decision      │
-                          └───────┬───────────────┬────┘   └────────────────────────┘
-                                  ▼               ▼
-                  ┌───────────────────────┐  ┌──────────────────────────┐
-                  │ Policy engine          │  │ CRM store (app/store.py) │
-                  │ (app/policy.py)        │  │ data/crm.json (15 custs) │
-                  │ data/refund_policy.md  │  │ + in-memory refunds      │
-                  └───────────────────────┘  └──────────────────────────┘
-```
-
-- **UI** (`frontend/`) only renders and calls the API.
-- **API** (`app/main.py`) is a thin HTTP boundary.
-- **Orchestration** (`app/agent.py`) owns the LLM/agent loop and conversation state.
-- **Tools + policy + store** are pure, testable Python with no UI/HTTP knowledge.
-
-### The guardrail (why the agent can't be jailbroken into a bad refund)
-
-The refund policy is enforced in **two** places:
-
-1. **Prompt** — the system prompt makes the written policy the source of truth and
-   instructs the agent to treat any "ignore the rules / I'm the admin" message as a
-   manipulation attempt.
-2. **Tools (defense in depth)** — `check_refund_eligibility` and `issue_refund` both
-   run the deterministic policy engine. `issue_refund` **refuses** (returns an error)
-   for anything the engine doesn't `APPROVE`. So even if a customer talks the model
-   into *trying* to refund a final-sale or >$500 item, the tool will not perform it,
-   and no refund is recorded.
-
----
-
-## Prerequisites
-
-- **Python 3.10+**
-- **Node.js 18+** (Node 20+ recommended)
-- A **Claude Pro/Max subscription**, logged in locally (for the real agent engine).
-  The mock engine needs none of this.
-
-### Make the agent use your subscription (not an API key)
-
-The Claude Agent SDK authenticates through the local Claude CLI session:
+Python 3.11+.
 
 ```bash
-npm install -g @anthropic-ai/claude-code   # if you don't already have the `claude` CLI
-claude            # then run /login  (or:  claude setup-token)  to sign in with your subscription
-unset ANTHROPIC_API_KEY                     # IMPORTANT: if this is set, the SDK uses the metered API instead
+python -m venv .venv && source .venv/bin/activate
+pip install -e ".[dev]"
+playwright install chromium          # skip if a Chromium is already provisioned
 ```
 
-> If `ANTHROPIC_API_KEY` is set, the SDK will use the paid API. Unset it to use your subscription.
+Two environment variables, both for the fixture's sign-on. Real deployments
+point these at a secret manager; the policy file declares which names a
+capability may resolve, and nothing else is reachable.
+
+```bash
+export MERIDIAN_OPERATOR_ID=svc_automation
+export MERIDIAN_PASSCODE='Tr0ubadour!'
+```
+
+**Model access** — the discovery run needs a model. Either works:
+
+```bash
+export ANTHROPIC_API_KEY=sk-ant-...     # backend: api  (the default when set)
+# or nothing at all, if the `claude` CLI is signed in  → backend: cli
+```
+
+`--backend auto` prefers the API key and falls back to the CLI. The committed
+evidence was produced through the CLI backend, on `claude-opus-5`.
+
+| Variable | Purpose |
+|---|---|
+| `SCRIBE_CHROMIUM_PATH` | Use a preinstalled Chromium instead of Playwright's. Auto-detects `/opt/pw-browsers/chromium`. |
+| `SCRIBE_HEADLESS` | `false` to watch the browser work. |
+| `SCRIBE_MODEL` | Defaults to `claude-opus-5`. |
+
+**Running without model access:** everything except `scribe discover` is
+LLM-free. The recorded capability is committed, so replay, the error paths, the
+human handoff, and cross-tenant reuse all run with no key:
+`scripts/demo.sh replay`.
 
 ---
 
-## Quick start
+## Demo path
 
-### 1. Get the code
-
-```bash
-git clone https://github.com/baderhusni/loopp.git
-cd loopp
-```
-
-### 2. Run it — one command
+Start the fixture — two institutions on the same vendor build:
 
 ```bash
-./run.sh
+python -m target_app --port 8799 --tenant northstar-cu   &
+python -m target_app --port 8800 --tenant riverbend-fcu  &
 ```
 
-That's it. It sets up the backend (venv + deps) and frontend (deps + build) on the
-first run, then serves the **whole app — UI + API — at one URL:**
-
-> **http://localhost:8000**
-
-First run installs dependencies (~1–2 min); after that it starts in a few seconds.
-`ANTHROPIC_API_KEY` is unset for you so it uses your **Claude subscription**. No
-subscription handy? Just pick **mock** in the engine dropdown — everything still works.
-
-<details>
-<summary><b>Prefer hot-reload during development? (two-process dev mode)</b></summary>
+**1. Discovery.** A model drives the live app and records what worked:
 
 ```bash
-# Terminal 1 — backend
-cd backend && python3 -m venv .venv && source .venv/bin/activate
-pip install -r requirements.txt
-unset ANTHROPIC_API_KEY && uvicorn app.main:app --reload --port 8000
-
-# Terminal 2 — frontend (proxies /api -> :8000)
-cd frontend && npm install && npm run dev    # http://localhost:5173
+scribe discover \
+  --goal "Look up member 100412 in the member inquiry screen and return their name, their savings share balance, and the savings account number." \
+  --base-url http://127.0.0.1:8799 \
+  --id meridian_core.member_savings_balance \
+  --name "Read a member's savings balance" \
+  --param member_id=100412 \
+  --probe member_id=999999 \
+  --tenant northstar-cu
 ```
 
-Helper scripts wrap both flows: `scripts/setup.sh`, `scripts/dev.sh` (dev), `scripts/serve.sh` (one process).
-</details>
+`--probe` is the interesting flag. After the happy path is recorded, the flow is
+re-run deterministically with an id that does not exist, and the model is shown
+the resulting screen and asked to label it. That is how `MEMBER_NOT_FOUND`
+becomes a declared outcome grounded in a real observation rather than a guess.
+
+**2. Review and approve.** Discovery produces a *draft*. Drafts do not run
+unattended:
+
+```bash
+scribe show capabilities/meridian_core/member_savings_balance.json
+scribe approve capabilities/meridian_core/member_savings_balance.json --by "your.name"
+```
+
+**3. Replay** — no model in the decision loop, a different member than the one
+it was recorded with:
+
+```bash
+scribe replay capabilities/meridian_core/member_savings_balance.json \
+  --base-url http://127.0.0.1:8799 --param member_id=100413
+```
+
+**4. The paths that matter.** A business outcome, a runtime failure, and a bad
+argument are three different answers:
+
+```bash
+# "no such member" -- an answer, not a crash
+scribe replay <cap> --base-url http://127.0.0.1:8799 --param member_id=999999
+
+# the core throws an error mid-flow
+curl -X POST http://127.0.0.1:8799/__fault -H 'Content-Type: application/json' \
+     -d '{"kind":"app_error","count":1}'
+scribe replay <cap> --base-url http://127.0.0.1:8799 --param member_id=100412
+
+# a malformed id -- rejected against the contract, the browser never opens
+scribe replay <cap> --base-url http://127.0.0.1:8799 --param member_id=oops
+```
+
+Other faults: `session_expired`, `interstitial`, `permission_denied`, `slow`.
+The first two are *recovered from* — the run still succeeds and records that it
+had to.
+
+**5. Human handoff** — a run that cannot continue, an operator who takes the
+live session, and a resume:
+
+```bash
+python examples/handoff_demo.py --base-url http://127.0.0.1:8799
+```
+
+Or drive it yourself: add `--console` to any `scribe replay`, and open
+<http://127.0.0.1:8900/> when it escalates.
+
+**6. Cross-tenant reuse** — the *same artifact*, a second institution, via a
+three-line overlay:
+
+```bash
+scribe replay <cap> --tenant riverbend-fcu --param member_id=100416
+```
+
+**7. Agent invocation** — the catalog as tool schemas, and a model calling one:
+
+```bash
+scribe catalog --as-tools
+python examples/agent_invokes_capability.py --base-url http://127.0.0.1:8799
+```
+
+**Everything at once**, writing to `evidence/`:
+
+```bash
+scripts/demo.sh            # includes discovery (needs model access)
+scripts/demo.sh replay     # skips discovery, uses the committed capability
+```
 
 ---
 
-## Using the app
+## Commands
 
-- **Customer chat** (left): type a refund request or click a scenario chip. The agent
-  asks for an email / order / item if needed, applies the policy, and replies with the
-  decision and the reason. A small meta line shows engine, model, tool count, latency,
-  tokens, and est. cost.
-- **Admin dashboard** (right):
-  - **Agent trace** — every run, newest first. Click one to see the full internal
-    reasoning: each tool call's **input/output**, **latency**, **errors/retries** (flagged
-    red), the agent's interim reasoning text, and a summary of **tokens / latency / est.
-    cost / decision**.
-  - **CRM data** — the 15 synthetic customers and their orders (handy for picking demos).
-  - **Policy** — the verbatim refund policy the agent is bound to.
-- **Engine selector** (top right): `auto` (Claude if available, else mock), `claude`
-  (force subscription agent), or `mock` (force the deterministic offline engine).
+| | |
+|---|---|
+| `scribe discover` | Record a capability with a model in the loop. |
+| `scribe replay` | Run one deterministically. `--tenant`, `--console`, `--allow-draft`, `--json`. |
+| `scribe show` | The reviewable summary and the call contract. |
+| `scribe approve` | Promote a draft for unattended use. |
+| `scribe catalog` | List capabilities, or `--as-tools` for agent tool schemas. |
+| `scribe invoke <id>` | Call by id, the way an agent would. |
+| `scribe console` | The operator console, standalone. |
 
 ---
 
-## What's in the trace (for the Loom walkthrough)
+## Layout
 
-For any run, the admin trace shows:
-
-- **Tool I/O** — exact arguments the agent passed and the JSON each tool returned.
-- **Retries / failed steps** — e.g. a wrong order number makes `get_order` return an
-  error (flagged red); the agent recovers and asks the customer to re-check. Try the
-  "🔁 Wrong order # (retry)" chip.
-- **Token cost** — `usage` token counts (input/output/cache) plus the **SDK-reported
-  cost** (`total_cost_usd`). On a subscription there's no per-token charge; this figure
-  is the SDK's API-equivalent estimate for the same tokens, shown for visibility.
-- **Latency** — per-step elapsed time and total wall-clock duration.
-- **Decision** — APPROVED / DENIED / ESCALATED, derived from the tools that ran.
+```
+src/scribe/
+  types/        artifact, conditions, actions, observations, results  ← the contracts
+  surface/      Surface protocol + Playwright web surface             ← the seam
+  agent/        discovery loop, LLM backends, artifact recorder
+  replay/       deterministic executor, condition evaluator, extraction
+  policy/       allowlist + risk gate, redaction
+  escalation/   control token, intervention broker, session host, console
+  apps/         per-vendor-product knowledge (sign-on, recovery, error signals)
+  catalog/      capability store and agent-facing tool schemas
+target_app/     the legacy fixture, two tenants, injectable faults
+capabilities/   recorded artifacts + per-tenant overlays
+evidence/       committed runs: discovery, replays, failures, handoff
+```
 
 ---
 
 ## Tests
 
 ```bash
-cd backend && source .venv/bin/activate
-pytest -q
+pytest                      # everything
+pytest -m "not browser"     # fast: contracts, policy, redaction, recorder, escalation
 ```
 
-The suite (24 tests, runs with the mock engine — no SDK/subscription needed) covers
-every policy branch, the tool guardrails (a final-sale or >$500 refund cannot be
-forced, refunds are idempotent), the mock agent end-to-end, prompt-injection
-resistance, and the HTTP API.
+The browser-marked tests drive a real Chromium against the fixture. They cover
+the claims the design rests on: that names are recovered from legacy markup,
+that replay never calls a model, that a not-found is an outcome and a dead
+locator is a failure, that a dying session is re-authenticated mid-flow, and
+that an unclaimed escalation ends the run instead of hanging.
 
 ---
 
-## Configuration (env vars)
+## Notes
 
-| Var | Default | Purpose |
-|---|---|---|
-| `AGENT_ENGINE` | `auto` | `auto` \| `claude` \| `mock` — which engine to use. |
-| `AGENT_MODEL` | `sonnet` | Model alias for the Claude engine (`sonnet`/`opus`/`haiku`). |
-| `SUPPORT_TODAY` | `2026-06-24` | Pins "today" for refund-window math so the demo is deterministic. |
-| `ANTHROPIC_API_KEY` | *(unset)* | **Leave unset** to use the subscription. If set, the SDK uses the metered API. |
+The fixture is fabricated: invented institutions, invented members, invented
+balances. No real financial data, no real credentials, and nothing here talks
+to a real banking system.
 
----
-
-## Project structure
-
-```
-backend/
-  app/
-    main.py        # FastAPI routes (API boundary)
-    agent.py       # orchestration: Claude Agent SDK engine + mock engine + system prompt
-    tools.py       # agent tools (CRM lookups, policy checks, refund/escalate actions)
-    policy.py      # deterministic refund policy engine
-    store.py       # in-memory CRM data store + refund/escalation records
-    trace.py       # per-run tracing (tool I/O, latency, errors)
-    models.py      # pydantic request/response models
-    data/
-      crm.json             # 15 synthetic customers + orders (generated)
-      generate_crm.py      # reproducible generator for crm.json
-      refund_policy.md     # the written policy (source of truth)
-  tests/test_agent.py
-  requirements.txt
-frontend/
-  src/
-    App.tsx
-    components/ChatWindow.tsx, AdminDashboard.tsx, TraceView.tsx, CrmExplorer.tsx, PolicyView.tsx
-    api.ts, types.ts, styles.css
-docs/              # architecture report, workflow + flowchart + user-journey diagrams
-```
-
----
-
-## Demo walkthrough (the 5-minute tour)
-
-1. **(0:00)** Show the UI + the engine badge (`claude`, subscription). Mention: no API
-   key — runs on the Claude subscription via the Claude Agent SDK.
-2. **(0:30)** Happy path: click **✅ Approve** → APPROVED. Open the run in the admin
-   trace; walk through find_customer → get_order → check_refund_eligibility → issue_refund,
-   pointing at tool I/O, latency, and token usage.
-3. **(2:00)** Resilience: click **🛡️ Prompt injection** → DENIED. Show the agent
-   verified, checked policy, and refused; show the **CRM "refunded" flag unchanged** and
-   the empty audit — the injection produced no refund.
-4. **(3:15)** Failed step / debugging: click **🔁 Wrong order # (retry)**. In the trace,
-   point at the **red `get_order` ERROR** step and explain how you'd debug from the log
-   (the error message tells the agent — and you — exactly what was wrong), then show the
-   agent recovered.
-5. **(4:15)** Escalation: click **↑ Escalate (> $500)** → ESCALATED with a ticket.
-   Close with **what you'd add before prod** (below).
-
-## What I'd add before production
-
-- **Persistence** — move CRM, refunds, escalations, and traces from in-memory to a real
-  DB; today they reset on restart.
-- **AuthN/Z** — authenticate customers (the agent currently trusts the email given) and
-  protect the admin dashboard.
-- **Observability** — ship traces/usage to a tracing backend (OpenTelemetry), alert on
-  error-rate and per-conversation cost, add request IDs.
-- **Idempotency + audit** — durable refund ledger with idempotency keys; immutable audit
-  log of every decision and the rule behind it.
-- **Eval harness** — a red-team suite of injection/pleading prompts run in CI to catch
-  policy regressions; golden-trace tests.
-- **Guardrail hardening** — rate limits, PII redaction in logs, and a human-in-the-loop
-  approval queue wired to the escalation tickets.
-- **Streaming UX** — stream tokens to the chat for lower perceived latency.
+`legacy/refund-agent/` is an unrelated earlier project that shares this
+repository. It is not part of this submission.

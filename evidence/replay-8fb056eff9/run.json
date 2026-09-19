@@ -1,0 +1,28 @@
+{
+  "status": "rejected",
+  "capability_id": "meridian_core.member_savings_balance",
+  "capability_version": "1.0.0",
+  "run_id": "8fb056eff9",
+  "tenant_id": "northstar-cu",
+  "started_at": "2026-09-19T19:14:30.530944Z",
+  "finished_at": "2026-09-19T19:14:30.531556Z",
+  "duration_ms": 0,
+  "outputs": {},
+  "outcome": null,
+  "failure": {
+    "failure_class": "input_invalid",
+    "message": "member_id: 'oops' does not match required format /^\\d{6}$/",
+    "step_index": null,
+    "step_id": null,
+    "expected": "",
+    "observed": "",
+    "remediation": "fix the arguments and call again",
+    "evidence": []
+  },
+  "escalation": null,
+  "steps": [],
+  "recoveries": [],
+  "drift": [],
+  "evidence_dir": "/home/user/loopp/evidence/replay-8fb056eff9",
+  "used_llm": false
+}

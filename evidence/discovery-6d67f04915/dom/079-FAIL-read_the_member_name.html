@@ -1,0 +1,55 @@
+<!-- frame: (top) url=http://127.0.0.1:8799/console -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Frameset//EN"><html><head><title>MERIDIAN CORE - Member Services</title></head>
+<frameset rows="54,*" border="0" frameborder="0">
+  <frame src="/frame/banner" name="banner" scrolling="no">
+  <frameset cols="180,*" border="1">
+    <frame src="/frame/nav" name="nav">
+    <frame src="/members/search" name="content">
+  </frameset>
+</frameset>
+</html>
+
+<!-- frame: banner url=http://127.0.0.1:8799/frame/banner -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"><html><head></head><body style="margin:0;font-family:Verdana;font-size:11px">
+<div style="background:#1f3864;color:#fff;padding:8px 10px;font-weight:bold">
+ NORTHSTAR CREDIT UNION &nbsp;|&nbsp; Member Services
+ <span style="float:right;font-weight:normal">Operator: svc_automation
+  &nbsp; <a href="/signoff" target="_top" style="color:#fff" data-scribe-ref="e1">Sign Off</a></span>
+</div></body></html>
+
+<!-- frame: nav url=http://127.0.0.1:8799/frame/nav -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"><html><head></head><body style="margin:0;font-family:Verdana;background:#f4f4f4">
+<table cellpadding="6" cellspacing="0" width="100%"><tbody><tr><td><a href="/members/search" target="content" style="font-size:11px;text-decoration:none" data-scribe-ref="e5">Member Search</a></td></tr><tr><td><a href="/stub/batch" target="content" style="font-size:11px;text-decoration:none" data-scribe-ref="e2">Batch Queue</a></td></tr><tr><td><a href="/stub/reports" target="content" style="font-size:11px;text-decoration:none" data-scribe-ref="e3">Reports</a></td></tr><tr><td><a href="/stub/teller" target="content" style="font-size:11px;text-decoration:none" data-scribe-ref="e4">Teller Ops</a></td></tr></tbody></table></body></html>
+
+<!-- frame: content url=http://127.0.0.1:8799/members/detail?f_mid=999999&btnSrch=Search -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"><html><head><title>MERIDIAN CORE - Member Inquiry</title>
+<style type="text/css">
+ body { font-family: Verdana, Arial, sans-serif; font-size: 11px; background:#e8e8e8; margin:0; }
+ table.grid { border-collapse: collapse; }
+ table.grid td, table.grid th { border: 1px solid #b0b0b0; padding: 3px 6px; font-size: 11px; }
+ th { background: #1f3864; color: #fff; text-align: left; }
+ .hdr { background: #1f3864; color:#fff; padding:6px 10px; font-weight:bold; }
+ .err { color:#8b0000; font-weight:bold; }
+ .fld { border:1px solid #666; font-size:11px; }
+</style></head>
+<body>
+<div class="hdr">NORTHSTAR CREDIT UNION &nbsp;|&nbsp; MERIDIAN CORE
+ 4.2</div>
+
+<table width="100%" cellpadding="8" cellspacing="0"><tbody><tr><td valign="top">
+
+<b>Member Inquiry</b><br><br>
+<form method="GET" action="/members/detail">
+<table cellpadding="4" cellspacing="0">
+ <tbody><tr><td colspan="2"><span class="err">No member record found for Member ID 999999.</span></td></tr>
+ <tr>
+   <td nowrap=""><font size="1">Member ID</font></td>
+   <td><input type="text" name="f_mid" id="ctl_cef9d" class="fld" size="14" value="999999" style="" data-scribe-ref="e6"></td>
+   <td><input type="submit" name="btnSrch" value="Search" style="" data-scribe-ref="e7"></td>
+ </tr>
+</tbody></table>
+</form>
+<br><font size="1" color="#666">Enter the member id
+ to retrieve the member relationship summary.</font>
+</td></tr></tbody></table>
+</body></html>
