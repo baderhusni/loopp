@@ -207,18 +207,28 @@ class Approval(Strict):
 
 
 class ReplayStats(Strict):
-    """Cheap reliability signal. Fed by ``scribe replay --record-stats``."""
+    """Cheap reliability signal. Fed by ``scribe replay --record-stats``.
+
+    Failures are split by who is answerable. A dead locator says the recording
+    has gone stale; the core returning HTTP 500 says nothing about the
+    recording at all. Counting both against one number produces a score that
+    drops when the *application* has a bad afternoon, which is exactly the
+    signal you do not want when deciding whether a capability still works.
+    """
 
     replays: int = 0
     successes: int = 0
     business_outcomes: int = 0
-    failures: int = 0
+    failures: int = 0                # attributable to this capability
+    environment_failures: int = 0     # the app, the session, the network
     last_replay_at: datetime | None = None
 
     @property
     def success_rate(self) -> float | None:
-        graded = self.successes + self.failures
-        return None if graded == 0 else self.successes / graded
+        """Over runs the capability could have got right."""
+        graded = self.successes + self.business_outcomes + self.failures
+        return None if graded == 0 else (
+            (self.successes + self.business_outcomes) / graded)
 
 
 class Provenance(Strict):

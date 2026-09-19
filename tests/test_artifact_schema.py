@@ -97,3 +97,24 @@ def test_overlay_never_mutates_the_base_capability():
     specialized = overlay.apply(cap)
     assert cap.model_dump(mode="json") == before
     assert specialized is not cap
+
+
+def test_reliability_score_ignores_failures_the_capability_cannot_prevent():
+    """A core returning HTTP 500 says nothing about whether the recording is
+    still good; a dead locator says everything. One number for both is a score
+    that drops when the application has a bad afternoon."""
+    from scribe.types.artifact import ReplayStats
+    from scribe.types.results import CAPABILITY_FAULTS, FailureClass
+
+    stats = ReplayStats(replays=10, successes=6, business_outcomes=3,
+                        failures=0, environment_failures=1)
+    assert stats.success_rate == 1.0
+
+    stale = ReplayStats(replays=10, successes=6, business_outcomes=3, failures=1)
+    assert stale.success_rate < 1.0
+    assert ReplayStats().success_rate is None
+
+    assert FailureClass.TARGET_NOT_FOUND in CAPABILITY_FAULTS
+    assert FailureClass.CHECKPOINT_FAILED in CAPABILITY_FAULTS
+    assert FailureClass.APP_ERROR not in CAPABILITY_FAULTS
+    assert FailureClass.SESSION_LOST not in CAPABILITY_FAULTS

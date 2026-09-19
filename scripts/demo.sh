@@ -61,7 +61,17 @@ step "2/8  REVIEW -- what a human approves, in plain text"
 $PY -m scribe show "$CAP"
 
 step "3/8  GUARDRAIL -- a draft capability will not run unattended"
-$PY -m scribe replay "$CAP" --base-url "$NORTHSTAR" --param member_id=100413 \
+# Against a draft copy, so this demonstrates the gate on every run rather than
+# only the first, and without touching the committed artifact's approval state.
+DRAFT=$(mktemp -d)/draft.json
+$PY - "$CAP" "$DRAFT" <<'PYEOF'
+import json, sys
+cap = json.load(open(sys.argv[1]))
+cap["approval"] = {"state": "draft", "approved_by": None, "approved_at": None,
+                   "note": "freshly recorded; awaiting review"}
+json.dump(cap, open(sys.argv[2], "w"), indent=2)
+PYEOF
+$PY -m scribe replay "$DRAFT" --base-url "$NORTHSTAR" --param member_id=100413 \
   --no-escalation || true
 
 step "4/8  APPROVE -- a reviewer promotes it"

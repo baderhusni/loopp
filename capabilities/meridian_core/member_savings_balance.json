@@ -795,7 +795,7 @@
   "approval": {
     "state": "approved",
     "approved_by": "j.rivera (ops review)",
-    "approved_at": "2026-09-19T19:14:14.948241Z",
+    "approved_at": "2026-09-19T19:19:56.210477Z",
     "note": "read-only; output sensitivity confirmed; MEMBER_NOT_FOUND detector verified"
   },
   "provenance": {
@@ -811,8 +811,9 @@
     "replays": 3,
     "successes": 1,
     "business_outcomes": 1,
-    "failures": 1,
-    "last_replay_at": "2026-09-19T19:14:29.337025Z"
+    "failures": 0,
+    "environment_failures": 1,
+    "last_replay_at": "2026-09-19T19:20:10.467404Z"
   },
   "tags": [
     "discovered"

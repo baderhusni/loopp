@@ -55,6 +55,17 @@ class FailureClass(str, Enum):
     INTERNAL = "internal"
 
 
+# Failures the *capability* is answerable for: its locators, its assertions, its
+# reads. These are the ones that should move a reliability score, because they
+# are the ones a better recording would have avoided.
+CAPABILITY_FAULTS = frozenset({
+    FailureClass.TARGET_NOT_FOUND,
+    FailureClass.TARGET_AMBIGUOUS,
+    FailureClass.POSTCONDITION_FAILED,
+    FailureClass.CHECKPOINT_FAILED,
+    FailureClass.EXTRACTION_FAILED,
+})
+
 # Failure classes worth putting in front of a person rather than just logging.
 ESCALATABLE = frozenset({
     FailureClass.TARGET_NOT_FOUND,

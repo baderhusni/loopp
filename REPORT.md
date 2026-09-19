@@ -223,8 +223,11 @@ quietly return the wrong number after a tenant upgrade, which is worse than
 failing.
 
 Drift management, given stable UIs: `drift` signals on every replay
-(locator fallback, structural locator, recovery fired) plus `stats` on the
-artifact give a per-tenant health signal without extra infrastructure. The
+(locator fallback, structural locator, recovery fired) plus per-capability
+counters give a health signal without extra infrastructure. Those counters
+separate failures the capability is answerable for — a dead locator, a failed
+checkpoint — from failures of the environment, because a score that drops
+when the core has a bad afternoon is not a signal about the recording. The
 intended operational loop is: drift rises on one tenant → review → either
 tighten the base capability or add an overlay line. Re-recording is the last
 resort, not the first.
@@ -362,7 +365,8 @@ enough to actually happen.
   identity story.
 
 **With more time, in order.** (1) Replay N times and score stability, gating
-approval on it — the `stats` field is already there, unused. (2) Treat drift
+approval on the result — the per-capability counters and the fault
+attribution behind them exist; the multi-run harness and the gate do not. (2) Treat drift
 signals as a per-tenant fleet health metric, since at thousands of app
 instances that is how you find the one capability quietly falling back to a
 structural locator. (3) Let an operator's manual fix during a handoff be

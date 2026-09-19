@@ -26,7 +26,7 @@ from .escalation import ControlToken, EscalationBroker, LogSink
 from .evidence import EvidenceRecorder
 from .policy import PolicyEngine
 from .types.artifact import ApprovalState
-from .types.results import ReplayStatus
+from .types.results import CAPABILITY_FAULTS, ReplayStatus
 
 
 def _kv(pairs: list[str] | None) -> dict[str, str]:
@@ -304,8 +304,11 @@ def _record_stats(path: str, cap, result) -> None:
         cap.stats.successes += 1
     elif result.status == ReplayStatus.BUSINESS_OUTCOME:
         cap.stats.business_outcomes += 1
-    elif result.status == ReplayStatus.FAILED:
-        cap.stats.failures += 1
+    elif result.status == ReplayStatus.FAILED and result.failure is not None:
+        if result.failure.failure_class in CAPABILITY_FAULTS:
+            cap.stats.failures += 1
+        else:
+            cap.stats.environment_failures += 1
     cap.stats.last_replay_at = datetime.now(timezone.utc)
     save_capability(cap, path)
 
@@ -325,8 +328,10 @@ def cmd_show(args) -> int:
         rate = cap.stats.success_rate
         print(f"\nreplay stats: {cap.stats.replays} runs, "
               f"{cap.stats.successes} success, {cap.stats.business_outcomes} outcome, "
-              f"{cap.stats.failures} failed"
-              + (f", success rate {rate:.0%}" if rate is not None else ""))
+              f"{cap.stats.failures} capability failure(s), "
+              f"{cap.stats.environment_failures} environment failure(s)"
+              + (f"\n              answered correctly {rate:.0%} of the runs this "
+                 f"capability could have got right" if rate is not None else ""))
     return 0
 
 
